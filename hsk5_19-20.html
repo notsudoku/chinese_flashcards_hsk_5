@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Китайские флэшкарточки</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #dbeafe 0%, #c7d2fe 100%);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 28rem;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #1f2937;
+            margin-bottom: 0.5rem;
+        }
+
+        .counter {
+            color: #6b7280;
+        }
+
+        .card-container {
+            position: relative;
+            margin-bottom: 2rem;
+        }
+
+        .card-wrapper {
+            width: 100%;
+            height: 16rem;
+            position: relative;
+            cursor: pointer;
+        }
+
+        .card-inner {
+            width: 100%;
+            height: 100%;
+            transition: transform 0.5s;
+            transform-style: preserve-3d;
+            position: relative;
+        }
+
+        .card-inner.flipped {
+            transform: rotateY(180deg);
+        }
+
+        .card-front, .card-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            border-radius: 0.75rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+        }
+
+        .card-front {
+            background: white;
+            border: 2px solid #bfdbfe;
+        }
+
+        .card-back {
+            background: linear-gradient(135deg, #3b82f6 0%, #4f46e5 100%);
+            color: white;
+            transform: rotateY(180deg);
+            border: 2px solid #93c5fd;
+        }
+
+        .card-content {
+            text-align: center;
+        }
+
+        .chinese-text {
+            font-size: 3.75rem;
+            font-weight: bold;
+            color: #1f2937;
+            margin-bottom: 1rem;
+        }
+
+        .hint-text {
+            font-size: 0.875rem;
+            color: #6b7280;
+        }
+
+        .pinyin-text {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+
+        .translation-text {
+            font-size: 1.125rem;
+        }
+
+        .back-hint {
+            font-size: 0.75rem;
+            color: rgba(191, 219, 254, 0.8);
+            margin-top: 1rem;
+        }
+
+        .navigation {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 1.5rem;
+        }
+
+        .nav-btn {
+            padding: 0.5rem 1rem;
+            background: #e5e7eb;
+            color: #374151;
+            border: none;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            display: flex;
+            align-items: center;
+            font-size: 0.875rem;
+        }
+
+        .nav-btn:hover {
+            background: #d1d5db;
+        }
+
+        .controls {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .control-btn {
+            flex: 1;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background-color 0.2s;
+        }
+
+        .shuffle-btn {
+            background: #f97316;
+            color: white;
+        }
+
+        .shuffle-btn:hover {
+            background: #ea580c;
+        }
+
+        .remember-btn {
+            background: #10b981;
+            color: white;
+        }
+
+        .remember-btn:hover {
+            background: #059669;
+        }
+
+        .congratulations {
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .congrats-emoji {
+            font-size: 3.75rem;
+            margin-bottom: 1rem;
+        }
+
+        .congrats-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #1f2937;
+            margin-bottom: 0.5rem;
+        }
+
+        .congrats-text {
+            color: #6b7280;
+        }
+
+        @media (max-width: 640px) {
+            body {
+                padding: 1rem;
+            }
+            
+            .chinese-text {
+                font-size: 3rem;
+            }
+            
+            .card-wrapper {
+                height: 14rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div id="app">
+            <div class="header">
+                <h1 class="title">Китайские флэшкарточки</h1>
+                <p class="counter" id="counter">Карточка 1 из 138</p>
+            </div>
+
+            <div class="card-container" id="cardContainer">
+                <div class="card-wrapper" onclick="flipCard()">
+                    <div class="card-inner" id="cardInner">
+                        <div class="card-front">
+                            <div class="card-content">
+                                <div class="chinese-text" id="chineseText">家乡</div>
+                                <p class="hint-text">Нажмите для перевода</p>
+                            </div>
+                        </div>
+                        <div class="card-back">
+                            <div class="card-content">
+                                <div class="pinyin-text" id="pinyinText">jiā xiāng</div>
+                                <div class="translation-text" id="translationText">родина</div>
+                                <p class="back-hint">Нажмите чтобы вернуть</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="navigation">
+                <button class="nav-btn" onclick="prevCard()">← Назад</button>
+                <button class="nav-btn" onclick="nextCard()">Вперёд →</button>
+            </div>
+
+            <div class="controls">
+                <button class="control-btn shuffle-btn" onclick="shuffleCards()">🔀 Перемешать</button>
+                <button class="control-btn remember-btn" onclick="removeCard()">✓ Запомнил</button>
+            </div>
+        </div>
+        
+        <div id="congratulations" style="display: none;">
+            <div class="congratulations">
+                <div class="congrats-emoji">🎉</div>
+                <h2 class="congrats-title">Поздравляем!</h2>
+                <p class="congrats-text">Вы изучили все карточки!</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const initialCards = [
+            { id: 1, chinese: '家乡', pinyin: 'jiā xiāng', translation: 'родина' },
+            { id: 2, chinese: '萝卜', pinyin: 'luó bo', translation: 'редис, редька' },
+            { id: 3, chinese: '怀念', pinyin: 'huái niàn', translation: 'ностальгировать, скучать' },
+            { id: 4, chinese: '色彩', pinyin: 'sè cǎi', translation: 'цвет, оттенок' },
+            { id: 5, chinese: '想念', pinyin: 'xiǎng niàn', translation: 'скучать в наст. момент' },
+            { id: 6, chinese: '青', pinyin: 'qīng', translation: 'зелено-голубой' },
+            { id: 7, chinese: '紫', pinyin: 'zǐ', translation: 'фиолетовый' },
+            { id: 8, chinese: '赏心悦目', pinyin: 'shǎng xīn yuè mù', translation: 'услаждать сердце и радовать глаз' },
+            { id: 9, chinese: '般', pinyin: 'bān', translation: 'часть, сорт' },
+            { id: 10, chinese: '清淡', pinyin: 'qīng dàn', translation: 'легкий (о вкусе)' },
+            { id: 11, chinese: '可口', pinyin: 'kě kǒu', translation: 'вкусный' },
+            { id: 12, chinese: '夸', pinyin: 'kuā', translation: 'хвалить' },
+            { id: 13, chinese: '橘子', pinyin: 'jú zi', translation: 'мандарин' },
+            { id: 14, chinese: '梨', pinyin: 'lí', translation: 'груша' },
+            { id: 15, chinese: '炒', pinyin: 'chǎo', translation: 'жарить' },
+            { id: 16, chinese: '煮', pinyin: 'zhǔ', translation: 'варить, тушить' },
+            { id: 17, chinese: '油炸', pinyin: 'yóu zhá', translation: 'жарить, дипфрай' },
+            { id: 18, chinese: '切', pinyin: 'qiē', translation: 'нарезать, шинковать' },
+            { id: 19, chinese: '丝', pinyin: 'sī', translation: 'кусок, лоскут' },
+            { id: 20, chinese: '搅拌', pinyin: 'jiǎo bàn', translation: 'мешать, перемешивать' },
+            { id: 21, chinese: '均匀', pinyin: 'jūn yún', translation: 'ровно распределенный, ровный' },
+            { id: 22, chinese: '原料', pinyin: 'yuán liào', translation: 'сырье, исходный материал' },
+            { id: 23, chinese: '擀', pinyin: 'gǎn', translation: 'раскатывать (тесто и тд)' },
+            { id: 24, chinese: '薄', pinyin: 'báo', translation: 'тонкий' },
+            { id: 25, chinese: '折叠', pinyin: 'zhé dié', translation: 'складывать' },
+            { id: 26, chinese: '透明', pinyin: 'tòu míng', translation: 'прозрачный' },
+            { id: 27, chinese: '淋', pinyin: 'lín', translation: 'распрыскивать, промочить' },
+            { id: 28, chinese: '圈', pinyin: 'quān', translation: 'круг' },
+            { id: 29, chinese: '烫', pinyin: 'tàng', translation: 'разогретый, нагревать' },
+            { id: 30, chinese: '盖', pinyin: 'gài', translation: 'накрывать' },
+            { id: 31, chinese: '预防', pinyin: 'yù fáng', translation: 'предотвращать, принимать меры' },
+            { id: 32, chinese: '糊', pinyin: 'hú', translation: 'подгоревший' },
+            { id: 33, chinese: '文火', pinyin: 'wén huǒ', translation: 'слабый огонь' },
+            { id: 34, chinese: '闻', pinyin: 'wén', translation: 'нюхать' },
+            { id: 35, chinese: '趁', pinyin: 'chèn', translation: 'пока имеются благоприятные условия' },
+            { id: 36, chinese: '口味', pinyin: 'kǒu wèi', translation: 'вкус' },
+            { id: 37, chinese: '少许', pinyin: 'shǎo xǔ', translation: 'немного, малость' },
+            { id: 38, chinese: '酱油', pinyin: 'jiàng yóu', translation: 'соевый соус' },
+            { id: 39, chinese: '醋', pinyin: 'cù', translation: 'уксус' },
+            { id: 40, chinese: '焦', pinyin: 'jiāo', translation: 'горелый, обугленный' },
+            { id: 41, chinese: '嫩', pinyin: 'nèn', translation: 'нежный' },
+            { id: 42, chinese: '特色', pinyin: 'tè sè', translation: 'характерная черта, особенность' },
+            { id: 43, chinese: '痰', pinyin: 'tán', translation: 'слюна' },
+            { id: 44, chinese: '平安', pinyin: 'píng ān', translation: 'спокойный, благополучный, безопасный' },
+            { id: 45, chinese: '众多', pinyin: 'zhòng duō', translation: 'многочисленный' },
+            { id: 46, chinese: '口感', pinyin: 'kǒu gǎn', translation: 'вкус пищи' },
+            { id: 47, chinese: '仍', pinyin: 'réng', translation: 'до сих пор, все еще' },
+            { id: 48, chinese: '仍然', pinyin: 'réng rán', translation: 'по прежнему, все также' },
+            { id: 49, chinese: '仍在', pinyin: 'réng zài', translation: 'все еще находиться' },
+            { id: 50, chinese: '像…般', pinyin: 'xiàng...bān', translation: 'как..., подобно...' },
+            { id: 51, chinese: '便', pinyin: 'biàn', translation: 'удобный, тогда' },
+            { id: 52, chinese: '关键', pinyin: 'guān jiàn', translation: 'ключевой, решающий' },
+            { id: 53, chinese: '高手', pinyin: 'gāo shǒu', translation: 'эксперт, мастер, знаток' },
+            { id: 54, chinese: '透过', pinyin: 'tòu guò', translation: 'проходить через, сквозь' },
+            { id: 55, chinese: '平底锅', pinyin: 'píng dǐ guō', translation: 'сковорода' },
+            { id: 56, chinese: '似乎', pinyin: 'sì hū', translation: 'кажется, как будто' },
+            { id: 57, chinese: '摊', pinyin: 'tān', translation: 'ларек, киоск' },
+            { id: 58, chinese: '出版', pinyin: 'chū bǎn', translation: 'издавать (книги)' },
+            { id: 59, chinese: '连环画', pinyin: 'lián huán huà', translation: 'комиксы, книги с картинками' },
+            { id: 60, chinese: '年代', pinyin: 'nián dài', translation: '10ти летие' },
+            { id: 61, chinese: '单调', pinyin: 'dān diào', translation: 'монотонный, однообразный' },
+            { id: 62, chinese: '网络', pinyin: 'wǎng luò', translation: 'сеть, интернет' },
+            { id: 63, chinese: '动画片', pinyin: 'dòng huà piàn', translation: 'мультфильм' },
+            { id: 64, chinese: '娱乐', pinyin: 'yú lè', translation: 'развлекать, развлечение' },
+            { id: 65, chinese: '无数', pinyin: 'wú shù', translation: 'несчетный, бесчетный' },
+            { id: 66, chinese: '青少年', pinyin: 'qīng shào nián', translation: 'подростки' },
+            { id: 67, chinese: '从事', pinyin: 'cóng shì', translation: 'посвятить себя чему либо' },
+            { id: 68, chinese: '毫无', pinyin: 'háo wú', translation: 'совсем нет' },
+            { id: 69, chinese: '疑问', pinyin: 'yí wèn', translation: 'сомнение, вопрос' },
+            { id: 70, chinese: '棚子', pinyin: 'péng zi', translation: 'сарай, навес, шалаш' },
+            { id: 71, chinese: '砖头', pinyin: 'zhuān tóu', translation: 'кирпич' },
+            { id: 72, chinese: '粗糙', pinyin: 'cū cāo', translation: 'грубый, топорный (о работе)' },
+            { id: 73, chinese: '木头', pinyin: 'mù tou', translation: 'дерево, древесина' },
+            { id: 74, chinese: '题材', pinyin: 'tí cái', translation: 'тема, содержание (книги)' },
+            { id: 75, chinese: '翻', pinyin: 'fān', translation: 'переворачивать верх дном, выворачивать' },
+            { id: 76, chinese: '搭', pinyin: 'dā', translation: 'вешать на, соединять, сооружать' },
+            { id: 77, chinese: '整齐', pinyin: 'zhěng qí', translation: 'аккуратный, упорядоченный' },
+            { id: 78, chinese: '年纪', pinyin: 'nián jì', translation: 'возраст' },
+            { id: 79, chinese: '身材', pinyin: 'shēn cái', translation: 'фигура, телосложение' },
+            { id: 80, chinese: '成人', pinyin: 'chéng rén', translation: 'взрослый' },
+            { id: 81, chinese: '册', pinyin: 'cè', translation: 'том для книг' },
+            { id: 82, chinese: '假如', pinyin: 'jiǎ rú', translation: 'если, если бы' },
+            { id: 83, chinese: '记录', pinyin: 'jì lù', translation: 'запись, записывать' },
+            { id: 84, chinese: '登记', pinyin: 'dēng jì', translation: 'регистрация, регистрировать' },
+            { id: 85, chinese: '手续', pinyin: 'shǒu xù', translation: 'процедура, формальности' },
+            { id: 86, chinese: '办理', pinyin: 'bàn lǐ', translation: 'заниматься делами, вести дела' },
+            { id: 87, chinese: '押金', pinyin: 'yā jīn', translation: 'депозит' },
+            { id: 88, chinese: '印刷', pinyin: 'yìn shuā', translation: 'печатать книги' },
+            { id: 89, chinese: '涨', pinyin: 'zhǎng', translation: 'расти, увеличиваться' },
+            { id: 90, chinese: '收藏', pinyin: 'shōu cáng', translation: 'коллекция, коллекционировать' },
+            { id: 91, chinese: '形式', pinyin: 'xíng shì', translation: 'формальность, форма, вид' },
+            { id: 92, chinese: '租', pinyin: 'zū', translation: 'арендовать' },
+            { id: 93, chinese: '供', pinyin: 'gōng', translation: 'снабжать, предоставлять' },
+            { id: 94, chinese: '损坏', pinyin: 'sǔn huài', translation: 'портить' },
+            { id: 95, chinese: '封皮', pinyin: 'fēng pí', translation: 'обложка книги' },
+            { id: 96, chinese: '得/不起', pinyin: 'dé/bù qǐ', translation: 'грамматика: мочь/не мочь себе позволить' },
+            { id: 97, chinese: '支', pinyin: 'zhī', translation: 'грамматика: как глагол, как числительное' },
+            { id: 98, chinese: '凭', pinyin: 'píng', translation: 'грамматика: на основании, полагаясь на' },
+            { id: 99, chinese: '从事+(…的）工作/业务/职业', pinyin: 'cóng shì + (…de) gōng zuò/yè wù/zhí yè', translation: 'конструкция: заниматься + работой/делом/профессией' },
+            { id: 100, chinese: '办理+手续/业务/信用卡', pinyin: 'bàn lǐ + shǒu xù/yè wù/xìn yòng kǎ', translation: 'конструкция: оформлять + процедуры/дела/кредитную карту' },
+            { id: 101, chinese: '粗糙+皮肤/地面/木板', pinyin: 'cū cāo + pí fū/dì miàn/mù bǎn', translation: 'конструкция: грубый + кожа/поверхность/доска' },
+            { id: 102, chinese: '整齐的+房间/军队/声音', pinyin: 'zhěng qí de + fáng jiān/jūn duì/shēng yīn', translation: 'конструкция: аккуратный + комната/армия/голос' },
+            { id: 103, chinese: '登记+清楚/好', pinyin: 'dēng jì + qīng chu/hǎo', translation: 'конструкция: регистрировать + четко/хорошо' },
+            { id: 104, chinese: '大翻/碰翻/闹翻', pinyin: 'dà fān/pèng fān/nào fān', translation: 'конструкция: сильно перевернуть/столкнуться/поссориться' },
+            { id: 105, chinese: '闻', pinyin: 'wén', translation: 'грамматика: нюхать, слышать о' },
+            { id: 106, chinese: '趁', pinyin: 'chèn', translation: 'грамматика: воспользоваться моментом' },
+            { id: 107, chinese: '切+蛋糕/菜/肉', pinyin: 'qiē + dàn gāo/cài/ròu', translation: 'конструкция: резать + торт/овощи/мясо' },
+            { id: 108, chinese: '预防+中毒/疾病/感冒/灾害', pinyin: 'yù fáng + zhòng dú/jí bìng/gǎn mào/zāi hài', translation: 'конструкция: предотвращать + отравление/болезнь/простуду/бедствие' },
+            { id: 109, chinese: '美丽的/时代的/神秘的/主观的/感情/民族/喜剧+色彩', pinyin: 'měi lì de/shí dài de/shén mì de/zhǔ guān de/gǎn qíng/mín zú/xǐ jù + sè cǎi', translation: 'конструкция: красивый/временной/загадочный/субъективный/эмоциональный/национальный/комедийный + цвет' },
+            { id: 110, chinese: '中国的/作品的/共同的/基本的/主要的+特色', pinyin: 'zhōng guó de/zuò pǐn de/gòng tóng de/jī běn de/zhǔ yào de + tè sè', translation: 'конструкция: китайский/произведения/общий/основной/главный + особенность' },
+            { id: 111, chinese: '搅拌/翻炒+均匀', pinyin: 'jiǎo bàn/fān chǎo + jūn yún', translation: 'конструкция: перемешивать/жарить помешивая + равномерно' },
+            { id: 112, chinese: '烫+红/熟/软/破', pinyin: 'tàng + hóng/shú/ruǎn/pò', translation: 'конструкция: обжигать + красный/спелый/мягкий/сломанный' },
+            { id: 113, chinese: '盖+好/严/紧/上（盖子）', pinyin: 'gài + hǎo/yán/jǐn/shàng (gài zi)', translation: 'конструкция: накрывать + хорошо/плотно/крепко/сверху (крышкой)' },
+            { id: 114, chinese: '炒/煮/炸+好/热/烂/透', pinyin: 'chǎo/zhǔ/zhá + hǎo/rè/làn/tòu', translation: 'конструкция: жарить/варить/жарить во фритюре + хорошо/горячо/мягко/насквозь' },
+            { id: 115, chinese: '分布/呼吸+均匀', pinyin: 'fēn bù/hū xī + jūn yún', translation: 'конструкция: распределяться/дышать + равномерно' },
+            { id: 116, chinese: '色彩+鲜艳/丰富/强烈/明显', pinyin: 'sè cǎi + xiān yàn/fēng fù/qiáng liè/míng xiǎn', translation: 'конструкция: цвет + яркий/богатый/сильный/заметный' },
+            { id: 117, chinese: '零食', pinyin: 'líng shí', translation: 'снеки, закуски' },
+            { id: 118, chinese: '开水', pinyin: 'kāi shuǐ', translation: 'кипяток' },
+            { id: 119, chinese: '点心', pinyin: 'diǎn xin', translation: 'десерт, сладости' },
+            { id: 120, chinese: '营养', pinyin: 'yíng yǎng', translation: 'питание, питательный' },
+            { id: 121, chinese: '胃口', pinyin: 'wèi kǒu', translation: 'аппетит' },
+            { id: 122, chinese: '淡', pinyin: 'dàn', translation: 'пресный, слабый (о вкусе)' },
+            { id: 123, chinese: '臭', pinyin: 'chòu', translation: 'вонючий, дурно пахнущий' },
+            { id: 124, chinese: '软', pinyin: 'ruǎn', translation: 'мягкий' },
+            { id: 125, chinese: '过期', pinyin: 'guò qī', translation: 'просроченный' },
+            { id: 126, chinese: '俱乐部', pinyin: 'jù lè bù', translation: 'клуб' },
+            { id: 127, chinese: '幼儿园', pinyin: 'yòu ér yuán', translation: 'детский сад' },
+            { id: 128, chinese: '博物馆', pinyin: 'bó wù guǎn', translation: 'музей' },
+            { id: 129, chinese: '法院', pinyin: 'fǎ yuàn', translation: 'суд' },
+            { id: 130, chinese: '海关', pinyin: 'hǎi guān', translation: 'таможня' },
+            { id: 131, chinese: '生产', pinyin: 'shēng chǎn', translation: 'производить, производство' },
+            { id: 132, chinese: '发明', pinyin: 'fā míng', translation: 'изобретать, изобретение' },
+            { id: 133, chinese: '设计', pinyin: 'shè jì', translation: 'проектировать, дизайн' },
+            { id: 134, chinese: '业务', pinyin: 'yè wù', translation: 'бизнес, дело' },
+            { id: 135, chinese: '项目', pinyin: 'xiàng mù', translation: 'проект' },
+            { id: 136, chinese: '效率', pinyin: 'xiào lǜ', translation: 'эффективность' },
+            { id: 137, chinese: '合法', pinyin: 'hé fǎ', translation: 'законный' },
+            { id: 138, chinese: '公平', pinyin: 'gōng píng', translation: 'справедливый' }
+        ];
+
+        let cards = [...initialCards];
+        let currentIndex = 0;
+        let isFlipped = false;
+
+        function updateCard() {
+            if (cards.length === 0) {
+                document.getElementById('app').style.display = 'none';
+                document.getElementById('congratulations').style.display = 'block';
+                return;
+            }
+
+            const currentCard = cards[currentIndex];
+            document.getElementById('chineseText').textContent = currentCard.chinese;
+            document.getElementById('pinyinText').textContent = currentCard.pinyin;
+            document.getElementById('translationText').textContent = currentCard.translation;
+            document.getElementById('counter').textContent = `Карточка ${currentIndex + 1} из ${cards.length}`;
+            
+            // Reset flip state
+            isFlipped = false;
+            document.getElementById('cardInner').classList.remove('flipped');
+        }
+
+        function flipCard() {
+            isFlipped = !isFlipped;
+            const cardInner = document.getElementById('cardInner');
+            if (isFlipped) {
+                cardInner.classList.add('flipped');
+            } else {
+                cardInner.classList.remove('flipped');
+            }
+        }
+
+        function nextCard() {
+            currentIndex = (currentIndex + 1) % cards.length;
+            updateCard();
+        }
+
+        function prevCard() {
+            currentIndex = (currentIndex - 1 + cards.length) % cards.length;
+            updateCard();
+        }
+
+        function shuffleCards() {
+            for (let i = cards.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [cards[i], cards[j]] = [cards[j], cards[i]];
+            }
+            currentIndex = 0;
+            updateCard();
+        }
+
+        function removeCard() {
+            cards.splice(currentIndex, 1);
+            
+            if (cards.length === 0) {
+                document.getElementById('app').style.display = 'none';
+                document.getElementById('congratulations').style.display = 'block';
+                return;
+            }
+            
+            if (currentIndex >= cards.length) {
+                currentIndex = 0;
+            }
+            
+            updateCard();
+        }
+
+        // Initialize the app
+        updateCard();
+    </script>
+</body>
+</html>
