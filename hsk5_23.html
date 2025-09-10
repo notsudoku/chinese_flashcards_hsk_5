@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Китайские флэшкарточки</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            text-align: center;
+            width: 100%;
+            max-width: 600px;
+        }
+
+        .header {
+            color: white;
+            margin-bottom: 20px;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .counter {
+            font-size: 1.2em;
+            margin-bottom: 20px;
+            color: rgba(255,255,255,0.9);
+        }
+
+        .card-container {
+            perspective: 1000px;
+            margin: 30px auto;
+            width: 350px;
+            height: 250px;
+            position: relative;
+        }
+
+        .card {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.6s;
+            cursor: pointer;
+        }
+
+        .card.flipped {
+            transform: rotateY(180deg);
+        }
+
+        .card-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            border-radius: 15px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .card-front {
+            background: white;
+            color: #333;
+        }
+
+        .card-back {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            transform: rotateY(180deg);
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .chinese-character {
+            font-size: 4em;
+            font-weight: bold;
+            line-height: 1;
+        }
+
+        .pinyin {
+            font-size: 1.8em;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .translation {
+            font-size: 1.3em;
+            line-height: 1.4;
+            opacity: 0.95;
+        }
+
+        .controls {
+            margin-top: 30px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 25px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: linear-gradient(45deg, #54a0ff, #2e86de);
+            color: white;
+        }
+
+        .btn-success {
+            background: linear-gradient(45deg, #5f27cd, #00d2d3);
+            color: white;
+        }
+
+        .btn-navigation {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: 2px solid rgba(255,255,255,0.3);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn:disabled:hover {
+            transform: none;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        .completion-screen {
+            display: none;
+            text-align: center;
+            color: white;
+        }
+
+        .completion-screen.active {
+            display: block;
+        }
+
+        .completion-screen h2 {
+            font-size: 3em;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .completion-screen p {
+            font-size: 1.5em;
+            margin-bottom: 30px;
+            opacity: 0.9;
+        }
+
+        .emoji {
+            font-size: 4em;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 480px) {
+            .card-container {
+                width: 300px;
+                height: 200px;
+            }
+
+            .chinese-character {
+                font-size: 3em;
+            }
+
+            .pinyin {
+                font-size: 1.5em;
+            }
+
+            .translation {
+                font-size: 1.1em;
+            }
+
+            .controls {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .btn {
+                width: 200px;
+                padding: 10px 20px;
+            }
+
+            .header h1 {
+                font-size: 2em;
+            }
+        }
+
+        .card-fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .flip-hint {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            color: rgba(0,0,0,0.4);
+            font-size: 0.8em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>中文学习</h1>
+            <div class="counter">
+                Карточка <span id="current">1</span> из <span id="total">0</span>
+            </div>
+        </div>
+
+        <div class="main-content" id="mainContent">
+            <div class="card-container">
+                <div class="card" id="flashcard">
+                    <div class="card-face card-front">
+                        <div class="chinese-character" id="chineseChar"></div>
+                        <div class="flip-hint">Нажмите для переворота</div>
+                    </div>
+                    <div class="card-face card-back">
+                        <div class="pinyin" id="pinyin"></div>
+                        <div class="translation" id="translation"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="controls">
+                <button class="btn btn-navigation" id="prevBtn" onclick="previousCard()">← Назад</button>
+                <button class="btn btn-navigation" id="nextBtn" onclick="nextCard()">Вперед →</button>
+                <button class="btn btn-primary" onclick="shuffleCards()">🔀 Перемешать</button>
+                <button class="btn btn-success" onclick="markAsLearned()">✓ Запомнил</button>
+            </div>
+        </div>
+
+        <div class="completion-screen" id="completionScreen">
+            <div class="emoji">🎉</div>
+            <h2>Поздравляем!</h2>
+            <p>Вы изучили все карточки!</p>
+            <button class="btn btn-primary" onclick="resetCards()">Начать заново</button>
+        </div>
+    </div>
+
+    <script>
+        const allCards = [
+            { chinese: "乖", pinyin: "guai", translation: "послушный (о ребёнке)" },
+            { chinese: "刻苦", pinyin: "kèkǔ", translation: "усердный, прилежный (в учебе, труде)" },
+            { chinese: "遵守", pinyin: "zūnshǒu", translation: "соблюдать, следовать (правилам, закону)" },
+            { chinese: "纪律", pinyin: "jìlǜ", translation: "дисциплина, порядок (обычно официально: армия, школа)" },
+            { chinese: "征求", pinyin: "zhēngqiú", translation: "запрашивать (мнение, согласие, предложение)" },
+            { chinese: "念", pinyin: "niàn", translation: "учиться; читать вслух; вспоминать" },
+            { chinese: "基本", pinyin: "jīběn", translation: "основной, фундаментальный; в основном" },
+            { chinese: "阶段", pinyin: "jiēduàn", translation: "этап, период" },
+            { chinese: "亲爱", pinyin: "qīn'ài", translation: "любимый, дорогой (о человеке)" },
+            { chinese: "违反", pinyin: "wěifǎn", translation: "нарушать (правила, закон, дисциплину)" },
+            { chinese: "规矩", pinyin: "guīju", translation: "правила поведения, нормы, привычки" },
+            { chinese: "能干", pinyin: "nénggàn", translation: "способный, умелый" },
+            { chinese: "讲座", pinyin: "jiǎngzuò", translation: "лекция, семинар" },
+            { chinese: "出席", pinyin: "chūxí", translation: "присутствовать (официально)" },
+            { chinese: "泡", pinyin: "pào", translation: "зависать в баре / клеить девушек / зависать в интернет-кафе" },
+            { chinese: "担任", pinyin: "dānrèn", translation: "занимать должность" },
+            { chinese: "主席", pinyin: "zhǔxí", translation: "председатель; президент (организации)" },
+            { chinese: "组织", pinyin: "zǔzhī", translation: "организовывать; организация" },
+            { chinese: "外交", pinyin: "wàijiāo", translation: "дипломатия, международные отношения" },
+            { chinese: "经商", pinyin: "jīngshāng", translation: "вести бизнес, заниматься торговлей" },
+            { chinese: "目标", pinyin: "mùbiāo", translation: "цель" },
+            { chinese: "系", pinyin: "xì", translation: "факультет, отделение (в университете)" },
+            { chinese: "名牌", pinyin: "míngpái", translation: "известный бренд, фирменный" },
+            { chinese: "录取", pinyin: "lùqǔ", translation: "зачислять, принимать (в университет, на работу)" },
+            { chinese: "面临", pinyin: "miànlín", translation: "столкнуться с (проблемой, ситуацией)" },
+            { chinese: "一致", pinyin: "yízhì", translation: "единодушный, одинаковый" },
+            { chinese: "让步", pinyin: "ràngbù", translation: "уступка, идти на компромисс" },
+            { chinese: "隐约", pinyin: "yǐnyuē", translation: "смутный, неясный" },
+            { chinese: "陌生", pinyin: "mòshēng", translation: "незнакомый, чужой" },
+            { chinese: "某", pinyin: "mǒu", translation: "какой-то, некий" },
+            { chinese: "建立", pinyin: "jiànlì", translation: "устанавливать, создавать (отношения, систему)" },
+            { chinese: "单独", pinyin: "dāndú", translation: "отдельно, в одиночку" },
+            { chinese: "沟通", pinyin: "gōutōng", translation: "общаться, устанавливать контакт" },
+            { chinese: "横", pinyin: "héng", translation: "горизонтальный; поперечный" },
+            { chinese: "沙滩", pinyin: "shātān", translation: "пляж" },
+            { chinese: "沉默", pinyin: "chénmò", translation: "молчаливый, безмолвный" },
+            { chinese: "吻", pinyin: "wěn", translation: "целовать" },
+            { chinese: "忍不住", pinyin: "rěnbuzhù", translation: "не удержаться (от слёз, смеха и т. д.)" },
+            { chinese: "幸亏", pinyin: "xìngkuī", translation: "к счастью, благодаря (иначе было бы плохо)" },
+            { chinese: "暗", pinyin: "àn", translation: "тёмный" },
+            { chinese: "不再", pinyin: "búzài", translation: "больше не (уже не)" },
+            { chinese: "甘于", pinyin: "gānyú", translation: "быть готовым/согласным (смириться с чем-то)" },
+            { chinese: "穿", pinyin: "chuān", translation: "пересекать, проходить" },
+            { chinese: "躺", pinyin: "tǎng", translation: "лежать, лечь" },
+            { chinese: "双方", pinyin: "shuāngfāng", translation: "обе стороны (переговоров, конфликта)" },
+            { chinese: "分", pinyin: "fēn", translation: "делить, разделять" },
+            { chinese: "宣传", pinyin: "xuānchuán", translation: "распространять, пропагандировать, рекламировать" },
+            { chinese: "方案", pinyin: "fāng'àn", translation: "план, проект, программа" },
+            { chinese: "分歧", pinyin: "fēnqí", translation: "разногласия, расхождения (во мнениях)" },
+            { chinese: "教材", pinyin: "jiàocái", translation: "учебные материалы" },
+            { chinese: "课程", pinyin: "kèchéng", translation: "курс, предмет" },
+            { chinese: "实习", pinyin: "shíxí", translation: "практика, стажировка" },
+            { chinese: "学历", pinyin: "xuélì", translation: "образование (уровень)" },
+            { chinese: "本科", pinyin: "běnkē", translation: "бакалавриат" },
+            { chinese: "学术", pinyin: "xuéshù", translation: "наука, научный" },
+            { chinese: "学问", pinyin: "xuéwen", translation: "знания, учёность" },
+            { chinese: "理论", pinyin: "lǐlùn", translation: "теория" },
+            { chinese: "资料", pinyin: "zīliào", translation: "материалы, данные" },
+            { chinese: "修改", pinyin: "xiūgǎi", translation: "исправлять, редактировать" },
+            { chinese: "发表", pinyin: "fābiǎo", translation: "публиковать, выступать" }
+        ];
+
+        let currentCards = [...allCards];
+        let currentIndex = 0;
+        let isFlipped = false;
+
+        const flashcard = document.getElementById('flashcard');
+        const chineseChar = document.getElementById('chineseChar');
+        const pinyin = document.getElementById('pinyin');
+        const translation = document.getElementById('translation');
+        const currentSpan = document.getElementById('current');
+        const totalSpan = document.getElementById('total');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const mainContent = document.getElementById('mainContent');
+        const completionScreen = document.getElementById('completionScreen');
+
+        function init() {
+            totalSpan.textContent = currentCards.length;
+            if (currentCards.length > 0) {
+                displayCard();
+                updateNavigation();
+            } else {
+                showCompletion();
+            }
+        }
+
+        function displayCard() {
+            if (currentCards.length === 0) return;
+            
+            const card = currentCards[currentIndex];
+            chineseChar.textContent = card.chinese;
+            pinyin.textContent = card.pinyin;
+            translation.textContent = card.translation;
+            
+            currentSpan.textContent = currentIndex + 1;
+            
+            // Сброс флипа
+            flashcard.classList.remove('flipped');
+            isFlipped = false;
+            
+            // Анимация появления
+            flashcard.classList.add('card-fade-in');
+            setTimeout(() => flashcard.classList.remove('card-fade-in'), 500);
+        }
+
+        function updateNavigation() {
+            prevBtn.disabled = currentIndex === 0;
+            nextBtn.disabled = currentIndex === currentCards.length - 1;
+        }
+
+        function flipCard() {
+            flashcard.classList.toggle('flipped');
+            isFlipped = !isFlipped;
+        }
+
+        function nextCard() {
+            if (currentIndex < currentCards.length - 1) {
+                currentIndex++;
+                displayCard();
+                updateNavigation();
+            }
+        }
+
+        function previousCard() {
+            if (currentIndex > 0) {
+                currentIndex--;
+                displayCard();
+                updateNavigation();
+            }
+        }
+
+        function shuffleCards() {
+            // Алгоритм Фишера-Йетса
+            for (let i = currentCards.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [currentCards[i], currentCards[j]] = [currentCards[j], currentCards[i]];
+            }
+            currentIndex = 0;
+            displayCard();
+            updateNavigation();
+        }
+
+        function markAsLearned() {
+            if (currentCards.length === 0) return;
+            
+            currentCards.splice(currentIndex, 1);
+            
+            if (currentCards.length === 0) {
+                showCompletion();
+                return;
+            }
+            
+            // Корректировка индекса после удаления
+            if (currentIndex >= currentCards.length) {
+                currentIndex = currentCards.length - 1;
+            }
+            
+            totalSpan.textContent = currentCards.length;
+            displayCard();
+            updateNavigation();
+        }
+
+        function showCompletion() {
+            mainContent.style.display = 'none';
+            completionScreen.classList.add('active');
+        }
+
+        function resetCards() {
+            currentCards = [...allCards];
+            currentIndex = 0;
+            mainContent.style.display = 'block';
+            completionScreen.classList.remove('active');
+            init();
+        }
+
+        // Обработчик клика по карточке
+        flashcard.addEventListener('click', flipCard);
+
+        // Обработчик клавиатуры
+        document.addEventListener('keydown', (e) => {
+            switch(e.key) {
+                case ' ':
+                case 'Enter':
+                    e.preventDefault();
+                    flipCard();
+                    break;
+                case 'ArrowLeft':
+                    e.preventDefault();
+                    previousCard();
+                    break;
+                case 'ArrowRight':
+                    e.preventDefault();
+                    nextCard();
+                    break;
+                case 'Delete':
+                case 'Backspace':
+                    e.preventDefault();
+                    markAsLearned();
+                    break;
+            }
+        });
+
+        // Инициализация
+        init();
+    </script>
+</body>
+</html>
