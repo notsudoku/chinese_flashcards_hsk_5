@@ -12,20 +12,18 @@
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-family: 'Arial', sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             display: flex;
-            flex-direction: column;
-            align-items: center;
             justify-content: center;
+            align-items: center;
             padding: 20px;
-            color: #333;
         }
 
         .container {
-            max-width: 600px;
             width: 100%;
+            max-width: 500px;
             text-align: center;
         }
 
@@ -35,9 +33,8 @@
         }
 
         .header h1 {
-            font-size: 2.5rem;
+            font-size: 2rem;
             margin-bottom: 10px;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
         }
 
         .counter {
@@ -48,8 +45,9 @@
 
         .card-container {
             perspective: 1000px;
-            height: 400px;
-            margin-bottom: 30px;
+            margin: 0 auto 30px;
+            width: 100%;
+            height: 300px;
             position: relative;
         }
 
@@ -58,7 +56,7 @@
             height: 100%;
             position: relative;
             transform-style: preserve-3d;
-            transition: transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transition: transform 0.6s;
             cursor: pointer;
         }
 
@@ -71,52 +69,49 @@
             width: 100%;
             height: 100%;
             backface-visibility: hidden;
-            border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
             display: flex;
-            flex-direction: column;
             justify-content: center;
             align-items: center;
-            padding: 40px;
+            padding: 20px;
         }
 
         .card-front {
             background: white;
+            color: #333;
         }
 
         .card-back {
-            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            background: linear-gradient(135deg, #4a90e2, #357abd);
             color: white;
             transform: rotateY(180deg);
+            flex-direction: column;
         }
 
-        .hanzi {
-            font-size: 6rem;
+        .chinese-char {
+            font-size: 4rem;
             font-weight: bold;
-            color: #2c3e50;
-            margin-bottom: 20px;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            text-align: center;
         }
 
         .pinyin {
-            font-size: 2.5rem;
-            font-weight: 600;
-            margin-bottom: 20px;
-            color: #fff;
-            text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+            font-size: 1.8rem;
+            margin-bottom: 15px;
+            font-weight: bold;
+            color: #ffd700;
         }
 
         .translation {
-            font-size: 1.8rem;
+            font-size: 1.4rem;
+            text-align: center;
             line-height: 1.4;
-            color: #fff;
-            opacity: 0.95;
         }
 
         .controls {
             display: flex;
             flex-wrap: wrap;
-            gap: 15px;
+            gap: 10px;
             justify-content: center;
             margin-bottom: 20px;
         }
@@ -124,261 +119,263 @@
         .btn {
             padding: 12px 24px;
             border: none;
-            border-radius: 50px;
+            border-radius: 25px;
             font-size: 1rem;
-            font-weight: 600;
+            font-weight: bold;
             cursor: pointer;
             transition: all 0.3s ease;
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            min-width: 120px;
-            justify-content: center;
+            background: white;
+            color: #4a90e2;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .btn:active {
+            transform: translateY(0);
         }
 
         .btn-primary {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #4a90e2;
             color: white;
-            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
         }
 
         .btn-success {
-            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            background: #28a745;
             color: white;
-            box-shadow: 0 4px 15px rgba(79, 172, 254, 0.4);
-        }
-
-        .btn-success:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(79, 172, 254, 0.6);
         }
 
         .btn-warning {
-            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-            color: white;
-            box-shadow: 0 4px 15px rgba(240, 147, 251, 0.4);
-        }
-
-        .btn-warning:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(240, 147, 251, 0.6);
-        }
-
-        .btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-            transform: none !important;
+            background: #ffc107;
+            color: #333;
         }
 
         .navigation {
             display: flex;
-            gap: 15px;
-            justify-content: center;
+            justify-content: space-between;
+            margin-top: 20px;
         }
 
-        .completion-screen {
-            display: none;
-            text-align: center;
+        .nav-btn {
+            padding: 10px 20px;
+            background: rgba(255, 255, 255, 0.2);
             color: white;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
         }
 
-        .completion-screen.active {
-            display: block;
+        .nav-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            border-color: rgba(255, 255, 255, 0.5);
         }
 
-        .completion-screen h2 {
-            font-size: 3rem;
+        .nav-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .congratulations {
+            display: none;
+            background: white;
+            border-radius: 15px;
+            padding: 40px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            animation: celebration 0.8s ease-in-out;
+        }
+
+        @keyframes celebration {
+            0% {
+                transform: scale(0.8);
+                opacity: 0;
+            }
+            50% {
+                transform: scale(1.1);
+            }
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .congratulations h2 {
+            color: #4a90e2;
+            font-size: 2.5rem;
             margin-bottom: 20px;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
         }
 
-        .completion-screen p {
-            font-size: 1.3rem;
+        .congratulations p {
+            font-size: 1.2rem;
+            color: #666;
             margin-bottom: 30px;
-            opacity: 0.9;
         }
 
-        .celebration {
-            font-size: 4rem;
-            margin-bottom: 20px;
-            animation: bounce 1s infinite alternate;
-        }
-
-        @keyframes bounce {
-            from { transform: translateY(0px); }
-            to { transform: translateY(-20px); }
-        }
-
-        .flip-hint {
-            color: rgba(255,255,255,0.7);
-            font-size: 0.9rem;
-            margin-top: 15px;
-        }
-
-        @media (max-width: 768px) {
-            .header h1 {
-                font-size: 2rem;
-            }
-            
-            .hanzi {
-                font-size: 4rem;
-            }
-            
-            .pinyin {
-                font-size: 2rem;
-            }
-            
-            .translation {
-                font-size: 1.4rem;
+        @media (max-width: 480px) {
+            .container {
+                padding: 10px;
             }
             
             .card-container {
-                height: 350px;
+                height: 250px;
             }
-            
+
+            .chinese-char {
+                font-size: 3rem;
+            }
+
+            .pinyin {
+                font-size: 1.4rem;
+            }
+
+            .translation {
+                font-size: 1.1rem;
+            }
+
             .controls {
                 flex-direction: column;
                 align-items: center;
             }
-            
+
             .btn {
                 width: 100%;
-                max-width: 300px;
+                max-width: 200px;
             }
         }
 
-        @media (max-width: 480px) {
-            .header h1 {
-                font-size: 1.8rem;
-            }
-            
-            .hanzi {
-                font-size: 3.5rem;
-            }
-            
-            .card-face {
-                padding: 20px;
-            }
-            
-            .card-container {
-                height: 300px;
-            }
+        .flip-hint {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.9rem;
+            margin-top: 10px;
         }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1>中文学习</h1>
-            <div class="counter">Карточка <span id="current">1</span> из <span id="total">0</span></div>
+            <h1>🇨🇳 Китайские флэшкарточки</h1>
+            <div class="counter" id="counter">Карточка 1 из 36</div>
         </div>
 
-        <div class="main-content">
-            <div class="card-container">
-                <div class="card" id="flashcard">
-                    <div class="card-face card-front">
-                        <div class="hanzi" id="hanzi"></div>
-                        <div class="flip-hint">Нажмите для переворота</div>
-                    </div>
-                    <div class="card-face card-back">
-                        <div class="pinyin" id="pinyin"></div>
-                        <div class="translation" id="translation"></div>
-                        <div class="flip-hint">Нажмите еще раз</div>
-                    </div>
+        <div class="card-container" id="cardContainer">
+            <div class="card" id="card">
+                <div class="card-face card-front">
+                    <div class="chinese-char" id="chineseChar">争论</div>
+                </div>
+                <div class="card-face card-back">
+                    <div class="pinyin" id="pinyin">zhēnglùn</div>
+                    <div class="translation" id="translation">спорить, полемизировать; спор, полемика</div>
                 </div>
             </div>
-
-            <div class="controls">
-                <button class="btn btn-warning" onclick="shuffleCards()">🔀 Перемешать</button>
-                <button class="btn btn-success" onclick="markAsLearned()">✓ Запомнил</button>
-            </div>
-
-            <div class="navigation">
-                <button class="btn btn-primary" onclick="previousCard()" id="prevBtn">← Назад</button>
-                <button class="btn btn-primary" onclick="nextCard()" id="nextBtn">Вперед →</button>
-            </div>
+            <div class="flip-hint">Нажмите на карточку, чтобы перевернуть</div>
         </div>
 
-        <div class="completion-screen" id="completionScreen">
-            <div class="celebration">🎉</div>
-            <h2>Поздравляем!</h2>
-            <p>Вы изучили все карточки!</p>
-            <button class="btn btn-primary" onclick="resetAll()">🔄 Начать заново</button>
+        <div class="controls">
+            <button class="btn btn-success" id="knownBtn">✓ Запомнил</button>
+            <button class="btn btn-warning" id="shuffleBtn">🔀 Перемешать</button>
+        </div>
+
+        <div class="navigation">
+            <button class="nav-btn" id="prevBtn">← Назад</button>
+            <button class="nav-btn" id="nextBtn">Вперед →</button>
+        </div>
+
+        <div class="congratulations" id="congratulations">
+            <h2>🎉 Поздравляем!</h2>
+            <p>Вы изучили все карточки! Отличная работа!</p>
+            <button class="btn btn-primary" id="restartBtn">Начать заново</button>
         </div>
     </div>
 
     <script>
-        const flashcardData = [
-            {hanzi: "争论", pinyin: "zhenglun", translation: "спорить, полемизировать; спор, полемика"},
-            {hanzi: "奇迹", pinyin: "qiji", translation: "чудо"},
-            {hanzi: "围绕", pinyin: "weirao", translation: "охватывать"},
-            {hanzi: "奔跑", pinyin: "benpao", translation: "скачки, галоп"},
-            {hanzi: "蹄子", pinyin: "tizi", translation: "копыто"},
-            {hanzi: "辩论", pinyin: "bianlun", translation: "спор (в науке)"},
-            {hanzi: "青蛙", pinyin: "qingwa", translation: "лягушка"},
-            {hanzi: "啦", pinyin: "la", translation: "частица"},
-            {hanzi: "终于", pinyin: "zhongyu", translation: "в конце концов, в итоге"},
-            {hanzi: "脖子", pinyin: "bozi", translation: "шея"},
-            {hanzi: "说服", pinyin: "shuofu", translation: "убеждать, уговаривать"},
-            {hanzi: "摄影师", pinyin: "sheyingshi", translation: "фотограф"},
-            {hanzi: "毕竟", pinyin: "bijing", translation: "в конце концов"},
-            {hanzi: "操场", pinyin: "caochang", translation: "спортивная площадка"},
-            {hanzi: "洞", pinyin: "dong", translation: "пещера, отверстие"},
-            {hanzi: "插", pinyin: "cha", translation: "вставлять, перебивать"},
-            {hanzi: "棍", pinyin: "gun", translation: "палка"},
-            {hanzi: "系", pinyin: "ji", translation: "пристегнуть, застегнуть"},
-            {hanzi: "匹", pinyin: "pi", translation: "счетное слово для лошадей"},
-            {hanzi: "拦", pinyin: "lan", translation: "остановить, препятствовать"},
-            {hanzi: "拍", pinyin: "pai", translation: "снимать, фотографировать"},
-            {hanzi: "差距", pinyin: "chaju", translation: "отличие"},
-            {hanzi: "显示", pinyin: "xianshi", translation: "показываться"},
-            {hanzi: "意识", pinyin: "yishi", translation: "сознание"},
-            {hanzi: "艰苦", pinyin: "jianku", translation: "трудности"},
-            {hanzi: "试验", pinyin: "shiyan", translation: "опыт, эксперимент"},
-            {hanzi: "逐渐", pinyin: "zhujian", translation: "постепенно"},
-            {hanzi: "改进", pinyin: "gaijin", translation: "изменяться, улучшать"},
-            {hanzi: "成熟", pinyin: "chengshu", translation: "зрелый"},
-            {hanzi: "兄弟", pinyin: "xiongdi", translation: "брат, чувак"},
-            {hanzi: "播放", pinyin: "bofang", translation: "транслировать, вещать, передавать"},
-            {hanzi: "纪念", pinyin: "jinian", translation: "воспоминание, памятный"},
-            {hanzi: "导演", pinyin: "daoyan", translation: "режиссер, режиссировать"},
-            {hanzi: "瞬间", pinyin: "shunjian", translation: "момент, мгновение, миг"},
-            {hanzi: "请求", pinyin: "qingqiu", translation: "просить, запрашивать"},
-            {hanzi: "或许", pinyin: "huoxu", translation: "вероятно, может быть"},
-            {hanzi: "重大", pinyin: "zhongda", translation: "значительный, важный"}
+        const flashcards = [
+            { chinese: '争论', pinyin: 'zhēnglùn', translation: 'спорить, полемизировать; спор, полемика' },
+            { chinese: '奇迹', pinyin: 'qíjì', translation: 'чудо' },
+            { chinese: '围绕', pinyin: 'wéirào', translation: 'концентрироваться вокруг, быть связанным с' },
+            { chinese: '奔跑', pinyin: 'bēnpǎo', translation: 'бежать, нестись' },
+            { chinese: '蹄子', pinyin: 'tízi', translation: 'копыто' },
+            { chinese: '辩论', pinyin: 'biànlùn', translation: 'спор, дебаты' },
+            { chinese: '青蛙', pinyin: 'qīngwā', translation: 'лягушка' },
+            { chinese: '啦', pinyin: 'la', translation: 'частица' },
+            { chinese: '始终', pinyin: 'shǐzhōng', translation: 'всегда, на протяжении всего времени' },
+            { chinese: '终于', pinyin: 'zhōngyú', translation: 'наконец-то, в конце концов' },
+            { chinese: '脖子', pinyin: 'bózi', translation: 'шея' },
+            { chinese: '说服', pinyin: 'shuōfú', translation: 'убеждать' },
+            { chinese: '摄影师', pinyin: 'shèyǐngshī', translation: 'фотограф' },
+            { chinese: '毕竟', pinyin: 'bìjìng', translation: 'всё-таки, в конце концов' },
+            { chinese: '操场', pinyin: 'cāochǎng', translation: 'спортивная площадка' },
+            { chinese: '洞', pinyin: 'dòng', translation: 'пещера, отверстие, дыра' },
+            { chinese: '插', pinyin: 'chā', translation: 'вставлять, перебивать' },
+            { chinese: '棍', pinyin: 'gùn', translation: 'палка, хулиган' },
+            { chinese: '系', pinyin: 'jì', translation: 'завязывать, пристёгивать, застёгивать' },
+            { chinese: '匹', pinyin: 'pǐ', translation: 'сч. слово для лошадей' },
+            { chinese: '拦', pinyin: 'lán', translation: 'преграждать, останавливать' },
+            { chinese: '拍', pinyin: 'pāi', translation: 'хлопать, снимать' },
+            { chinese: '差距', pinyin: 'chājù', translation: 'разница, разрыв' },
+            { chinese: '显示', pinyin: 'xiǎnshì', translation: 'демонстрировать, показывать' },
+            { chinese: '显得', pinyin: 'xiǎnde', translation: 'выглядеть, казаться' },
+            { chinese: '意识', pinyin: 'yìshí', translation: 'сознание, осознание' },
+            { chinese: '艰苦', pinyin: 'jiānkǔ', translation: 'тяжёлый, трудный' },
+            { chinese: '试验', pinyin: 'shìyàn', translation: 'эксперимент, испытание' },
+            { chinese: '逐渐', pinyin: 'zhújiàn', translation: 'постепенно' },
+            { chinese: '改进', pinyin: 'gǎijìn', translation: 'улучшать, совершенствовать' },
+            { chinese: '成熟', pinyin: 'chéngshú', translation: 'зрелый' },
+            { chinese: '兄弟', pinyin: 'xiōngdì', translation: 'брат, дружище' },
+            { chinese: '播放', pinyin: 'bòfàng', translation: 'транслировать, воспроизводить' },
+            { chinese: '纪念', pinyin: 'jìniàn', translation: 'помнить, увековечить' },
+            { chinese: '导演', pinyin: 'dǎoyǎn', translation: 'режиссёр, режиссировать' },
+            { chinese: '瞬间', pinyin: 'shùnjiān', translation: 'миг, мгновение' },
+            { chinese: '请求', pinyin: 'qǐngqiú', translation: 'просьба, запрашивать' },
+            { chinese: '或许', pinyin: 'huòxǔ', translation: 'возможно, может быть' },
+            { chinese: '重大', pinyin: 'zhòngdà', translation: 'значительный, важный' }
         ];
 
-        let currentCards = [...flashcardData];
+        let currentCards = [...flashcards];
         let currentIndex = 0;
         let isFlipped = false;
 
+        const elements = {
+            card: document.getElementById('card'),
+            chineseChar: document.getElementById('chineseChar'),
+            pinyin: document.getElementById('pinyin'),
+            translation: document.getElementById('translation'),
+            counter: document.getElementById('counter'),
+            prevBtn: document.getElementById('prevBtn'),
+            nextBtn: document.getElementById('nextBtn'),
+            knownBtn: document.getElementById('knownBtn'),
+            shuffleBtn: document.getElementById('shuffleBtn'),
+            congratulations: document.getElementById('congratulations'),
+            restartBtn: document.getElementById('restartBtn'),
+            cardContainer: document.getElementById('cardContainer')
+        };
+
         function updateCard() {
             if (currentCards.length === 0) {
-                showCompletionScreen();
+                showCongratulations();
                 return;
             }
 
             const card = currentCards[currentIndex];
-            document.getElementById('hanzi').textContent = card.hanzi;
-            document.getElementById('pinyin').textContent = card.pinyin;
-            document.getElementById('translation').textContent = card.translation;
-            
-            document.getElementById('current').textContent = currentIndex + 1;
-            document.getElementById('total').textContent = currentCards.length;
+            elements.chineseChar.textContent = card.chinese;
+            elements.pinyin.textContent = card.pinyin;
+            elements.translation.textContent = card.translation;
+            elements.counter.textContent = `Карточка ${currentIndex + 1} из ${currentCards.length}`;
             
             // Reset flip state
-            document.getElementById('flashcard').classList.remove('flipped');
+            elements.card.classList.remove('flipped');
             isFlipped = false;
-            
+
             // Update navigation buttons
-            document.getElementById('prevBtn').disabled = currentIndex === 0;
-            document.getElementById('nextBtn').disabled = currentIndex === currentCards.length - 1;
+            elements.prevBtn.disabled = currentIndex === 0;
+            elements.nextBtn.disabled = currentIndex === currentCards.length - 1;
+        }
+
+        function flipCard() {
+            elements.card.classList.toggle('flipped');
+            isFlipped = !isFlipped;
         }
 
         function nextCard() {
@@ -388,11 +385,26 @@
             }
         }
 
-        function previousCard() {
+        function prevCard() {
             if (currentIndex > 0) {
                 currentIndex--;
                 updateCard();
             }
+        }
+
+        function markAsKnown() {
+            currentCards.splice(currentIndex, 1);
+            
+            if (currentCards.length === 0) {
+                showCongratulations();
+                return;
+            }
+            
+            if (currentIndex >= currentCards.length) {
+                currentIndex = currentCards.length - 1;
+            }
+            
+            updateCard();
         }
 
         function shuffleCards() {
@@ -404,51 +416,46 @@
             updateCard();
         }
 
-        function markAsLearned() {
-            currentCards.splice(currentIndex, 1);
-            if (currentIndex >= currentCards.length && currentIndex > 0) {
-                currentIndex--;
-            }
-            updateCard();
+        function showCongratulations() {
+            elements.cardContainer.style.display = 'none';
+            document.querySelector('.controls').style.display = 'none';
+            document.querySelector('.navigation').style.display = 'none';
+            elements.congratulations.style.display = 'block';
         }
 
-        function resetAll() {
-            currentCards = [...flashcardData];
+        function restart() {
+            currentCards = [...flashcards];
             currentIndex = 0;
-            document.getElementById('completionScreen').classList.remove('active');
-            document.querySelector('.main-content').style.display = 'block';
+            elements.cardContainer.style.display = 'block';
+            document.querySelector('.controls').style.display = 'flex';
+            document.querySelector('.navigation').style.display = 'flex';
+            elements.congratulations.style.display = 'none';
             updateCard();
         }
 
-        function showCompletionScreen() {
-            document.querySelector('.main-content').style.display = 'none';
-            document.getElementById('completionScreen').classList.add('active');
-        }
-
-        // Flip card on click
-        document.getElementById('flashcard').addEventListener('click', function() {
-            this.classList.toggle('flipped');
-            isFlipped = !isFlipped;
-        });
+        // Event listeners
+        elements.card.addEventListener('click', flipCard);
+        elements.nextBtn.addEventListener('click', nextCard);
+        elements.prevBtn.addEventListener('click', prevCard);
+        elements.knownBtn.addEventListener('click', markAsKnown);
+        elements.shuffleBtn.addEventListener('click', shuffleCards);
+        elements.restartBtn.addEventListener('click', restart);
 
         // Keyboard navigation
-        document.addEventListener('keydown', function(e) {
+        document.addEventListener('keydown', (e) => {
             switch(e.key) {
                 case 'ArrowLeft':
-                    previousCard();
+                    prevCard();
                     break;
                 case 'ArrowRight':
                     nextCard();
                     break;
                 case ' ':
                     e.preventDefault();
-                    document.getElementById('flashcard').click();
+                    flipCard();
                     break;
                 case 'Enter':
-                    markAsLearned();
-                    break;
-                case 's':
-                    shuffleCards();
+                    markAsKnown();
                     break;
             }
         });
