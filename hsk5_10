@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Китайские флэшкарточки</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 600px;
+            width: 100%;
+            text-align: center;
+        }
+
+        .header {
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .counter {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            margin-bottom: 20px;
+        }
+
+        .card-container {
+            perspective: 1000px;
+            height: 400px;
+            margin-bottom: 30px;
+            position: relative;
+        }
+
+        .card {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            cursor: pointer;
+        }
+
+        .card.flipped {
+            transform: rotateY(180deg);
+        }
+
+        .card-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 40px;
+        }
+
+        .card-front {
+            background: white;
+        }
+
+        .card-back {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            transform: rotateY(180deg);
+        }
+
+        .hanzi {
+            font-size: 6rem;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 20px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .pinyin {
+            font-size: 2.5rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: #fff;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+        }
+
+        .translation {
+            font-size: 1.8rem;
+            line-height: 1.4;
+            color: #fff;
+            opacity: 0.95;
+        }
+
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 50px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            min-width: 120px;
+            justify-content: center;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(79, 172, 254, 0.4);
+        }
+
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(79, 172, 254, 0.6);
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(240, 147, 251, 0.4);
+        }
+
+        .btn-warning:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(240, 147, 251, 0.6);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .navigation {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
+
+        .completion-screen {
+            display: none;
+            text-align: center;
+            color: white;
+        }
+
+        .completion-screen.active {
+            display: block;
+        }
+
+        .completion-screen h2 {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .completion-screen p {
+            font-size: 1.3rem;
+            margin-bottom: 30px;
+            opacity: 0.9;
+        }
+
+        .celebration {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            animation: bounce 1s infinite alternate;
+        }
+
+        @keyframes bounce {
+            from { transform: translateY(0px); }
+            to { transform: translateY(-20px); }
+        }
+
+        .flip-hint {
+            color: rgba(255,255,255,0.7);
+            font-size: 0.9rem;
+            margin-top: 15px;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .hanzi {
+                font-size: 4rem;
+            }
+            
+            .pinyin {
+                font-size: 2rem;
+            }
+            
+            .translation {
+                font-size: 1.4rem;
+            }
+            
+            .card-container {
+                height: 350px;
+            }
+            
+            .controls {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .btn {
+                width: 100%;
+                max-width: 300px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .header h1 {
+                font-size: 1.8rem;
+            }
+            
+            .hanzi {
+                font-size: 3.5rem;
+            }
+            
+            .card-face {
+                padding: 20px;
+            }
+            
+            .card-container {
+                height: 300px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>中文学习</h1>
+            <div class="counter">Карточка <span id="current">1</span> из <span id="total">0</span></div>
+        </div>
+
+        <div class="main-content">
+            <div class="card-container">
+                <div class="card" id="flashcard">
+                    <div class="card-face card-front">
+                        <div class="hanzi" id="hanzi"></div>
+                        <div class="flip-hint">Нажмите для переворота</div>
+                    </div>
+                    <div class="card-face card-back">
+                        <div class="pinyin" id="pinyin"></div>
+                        <div class="translation" id="translation"></div>
+                        <div class="flip-hint">Нажмите еще раз</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="controls">
+                <button class="btn btn-warning" onclick="shuffleCards()">🔀 Перемешать</button>
+                <button class="btn btn-success" onclick="markAsLearned()">✓ Запомнил</button>
+            </div>
+
+            <div class="navigation">
+                <button class="btn btn-primary" onclick="previousCard()" id="prevBtn">← Назад</button>
+                <button class="btn btn-primary" onclick="nextCard()" id="nextBtn">Вперед →</button>
+            </div>
+        </div>
+
+        <div class="completion-screen" id="completionScreen">
+            <div class="celebration">🎉</div>
+            <h2>Поздравляем!</h2>
+            <p>Вы изучили все карточки!</p>
+            <button class="btn btn-primary" onclick="resetAll()">🔄 Начать заново</button>
+        </div>
+    </div>
+
+    <script>
+        const flashcardData = [
+            {hanzi: "争论", pinyin: "zhenglun", translation: "спорить, полемизировать; спор, полемика"},
+            {hanzi: "奇迹", pinyin: "qiji", translation: "чудо"},
+            {hanzi: "围绕", pinyin: "weirao", translation: "охватывать"},
+            {hanzi: "奔跑", pinyin: "benpao", translation: "скачки, галоп"},
+            {hanzi: "蹄子", pinyin: "tizi", translation: "копыто"},
+            {hanzi: "辩论", pinyin: "bianlun", translation: "спор (в науке)"},
+            {hanzi: "青蛙", pinyin: "qingwa", translation: "лягушка"},
+            {hanzi: "啦", pinyin: "la", translation: "частица"},
+            {hanzi: "终于", pinyin: "zhongyu", translation: "в конце концов, в итоге"},
+            {hanzi: "脖子", pinyin: "bozi", translation: "шея"},
+            {hanzi: "说服", pinyin: "shuofu", translation: "убеждать, уговаривать"},
+            {hanzi: "摄影师", pinyin: "sheyingshi", translation: "фотограф"},
+            {hanzi: "毕竟", pinyin: "bijing", translation: "в конце концов"},
+            {hanzi: "操场", pinyin: "caochang", translation: "спортивная площадка"},
+            {hanzi: "洞", pinyin: "dong", translation: "пещера, отверстие"},
+            {hanzi: "插", pinyin: "cha", translation: "вставлять, перебивать"},
+            {hanzi: "棍", pinyin: "gun", translation: "палка"},
+            {hanzi: "系", pinyin: "ji", translation: "пристегнуть, застегнуть"},
+            {hanzi: "匹", pinyin: "pi", translation: "счетное слово для лошадей"},
+            {hanzi: "拦", pinyin: "lan", translation: "остановить, препятствовать"},
+            {hanzi: "拍", pinyin: "pai", translation: "снимать, фотографировать"},
+            {hanzi: "差距", pinyin: "chaju", translation: "отличие"},
+            {hanzi: "显示", pinyin: "xianshi", translation: "показываться"},
+            {hanzi: "意识", pinyin: "yishi", translation: "сознание"},
+            {hanzi: "艰苦", pinyin: "jianku", translation: "трудности"},
+            {hanzi: "试验", pinyin: "shiyan", translation: "опыт, эксперимент"},
+            {hanzi: "逐渐", pinyin: "zhujian", translation: "постепенно"},
+            {hanzi: "改进", pinyin: "gaijin", translation: "изменяться, улучшать"},
+            {hanzi: "成熟", pinyin: "chengshu", translation: "зрелый"},
+            {hanzi: "兄弟", pinyin: "xiongdi", translation: "брат, чувак"},
+            {hanzi: "播放", pinyin: "bofang", translation: "транслировать, вещать, передавать"},
+            {hanzi: "纪念", pinyin: "jinian", translation: "воспоминание, памятный"},
+            {hanzi: "导演", pinyin: "daoyan", translation: "режиссер, режиссировать"},
+            {hanzi: "瞬间", pinyin: "shunjian", translation: "момент, мгновение, миг"},
+            {hanzi: "请求", pinyin: "qingqiu", translation: "просить, запрашивать"},
+            {hanzi: "或许", pinyin: "huoxu", translation: "вероятно, может быть"},
+            {hanzi: "重大", pinyin: "zhongda", translation: "значительный, важный"}
+        ];
+
+        let currentCards = [...flashcardData];
+        let currentIndex = 0;
+        let isFlipped = false;
+
+        function updateCard() {
+            if (currentCards.length === 0) {
+                showCompletionScreen();
+                return;
+            }
+
+            const card = currentCards[currentIndex];
+            document.getElementById('hanzi').textContent = card.hanzi;
+            document.getElementById('pinyin').textContent = card.pinyin;
+            document.getElementById('translation').textContent = card.translation;
+            
+            document.getElementById('current').textContent = currentIndex + 1;
+            document.getElementById('total').textContent = currentCards.length;
+            
+            // Reset flip state
+            document.getElementById('flashcard').classList.remove('flipped');
+            isFlipped = false;
+            
+            // Update navigation buttons
+            document.getElementById('prevBtn').disabled = currentIndex === 0;
+            document.getElementById('nextBtn').disabled = currentIndex === currentCards.length - 1;
+        }
+
+        function nextCard() {
+            if (currentIndex < currentCards.length - 1) {
+                currentIndex++;
+                updateCard();
+            }
+        }
+
+        function previousCard() {
+            if (currentIndex > 0) {
+                currentIndex--;
+                updateCard();
+            }
+        }
+
+        function shuffleCards() {
+            for (let i = currentCards.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [currentCards[i], currentCards[j]] = [currentCards[j], currentCards[i]];
+            }
+            currentIndex = 0;
+            updateCard();
+        }
+
+        function markAsLearned() {
+            currentCards.splice(currentIndex, 1);
+            if (currentIndex >= currentCards.length && currentIndex > 0) {
+                currentIndex--;
+            }
+            updateCard();
+        }
+
+        function resetAll() {
+            currentCards = [...flashcardData];
+            currentIndex = 0;
+            document.getElementById('completionScreen').classList.remove('active');
+            document.querySelector('.main-content').style.display = 'block';
+            updateCard();
+        }
+
+        function showCompletionScreen() {
+            document.querySelector('.main-content').style.display = 'none';
+            document.getElementById('completionScreen').classList.add('active');
+        }
+
+        // Flip card on click
+        document.getElementById('flashcard').addEventListener('click', function() {
+            this.classList.toggle('flipped');
+            isFlipped = !isFlipped;
+        });
+
+        // Keyboard navigation
+        document.addEventListener('keydown', function(e) {
+            switch(e.key) {
+                case 'ArrowLeft':
+                    previousCard();
+                    break;
+                case 'ArrowRight':
+                    nextCard();
+                    break;
+                case ' ':
+                    e.preventDefault();
+                    document.getElementById('flashcard').click();
+                    break;
+                case 'Enter':
+                    markAsLearned();
+                    break;
+                case 's':
+                    shuffleCards();
+                    break;
+            }
+        });
+
+        // Initialize
+        updateCard();
+    </script>
+</body>
+</html>
