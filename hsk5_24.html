@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Китайские флэшкарточки</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 600px;
+            width: 100%;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .title {
+            color: white;
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .counter {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 1.1rem;
+            margin-bottom: 20px;
+        }
+
+        .card-container {
+            position: relative;
+            width: 100%;
+            height: 300px;
+            margin: 30px 0;
+            perspective: 1000px;
+        }
+
+        .card {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            transform-style: preserve-3d;
+            transition: transform 0.6s cubic-bezier(0.4, 0.0, 0.2, 1);
+            cursor: pointer;
+        }
+
+        .card.flipped {
+            transform: rotateY(180deg);
+        }
+
+        .card-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            padding: 20px;
+        }
+
+        .card-front {
+            background: white;
+            color: #333;
+        }
+
+        .card-back {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: #FFD700;
+            transform: rotateY(180deg);
+        }
+
+        .chinese-character {
+            font-size: 4rem;
+            font-weight: bold;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-content {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .pinyin {
+            font-size: 1.8rem;
+            font-weight: 600;
+            color: #FFD700;
+        }
+
+        .translation {
+            font-size: 1.2rem;
+            line-height: 1.4;
+            color: white;
+        }
+
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        .btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #FF6B6B, #FF8E8E);
+            border: none;
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #FF5252, #FF7979);
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #4ECDC4, #44A08D);
+            border: none;
+        }
+
+        .btn-secondary:hover {
+            background: linear-gradient(135deg, #26D0CE, #2AB5A5);
+        }
+
+        .nav-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 20px;
+        }
+
+        .progress-bar {
+            background: rgba(255, 255, 255, 0.2);
+            height: 8px;
+            border-radius: 4px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            background: linear-gradient(90deg, #4ECDC4, #44A08D);
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+
+        .completion-screen {
+            display: none;
+            text-align: center;
+            color: white;
+        }
+
+        .completion-screen.active {
+            display: block;
+        }
+
+        .completion-title {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            color: #FFD700;
+        }
+
+        .completion-message {
+            font-size: 1.2rem;
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+
+        .card-hint {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            background: rgba(0, 0, 0, 0.1);
+            color: rgba(0, 0, 0, 0.6);
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            pointer-events: none;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+                margin: 10px;
+            }
+            
+            .title {
+                font-size: 1.5rem;
+            }
+            
+            .chinese-character {
+                font-size: 3rem;
+            }
+            
+            .pinyin {
+                font-size: 1.4rem;
+            }
+            
+            .translation {
+                font-size: 1rem;
+            }
+            
+            .controls {
+                gap: 10px;
+            }
+            
+            .btn {
+                padding: 10px 20px;
+                font-size: 0.9rem;
+            }
+            
+            .card-container {
+                height: 250px;
+            }
+        }
+
+        .flip-animation {
+            animation: flipHint 2s infinite;
+        }
+
+        @keyframes flipHint {
+            0%, 100% { transform: rotateY(0deg); }
+            50% { transform: rotateY(10deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1 class="title">汉字学习 📚</h1>
+            <div class="counter" id="counter">Карточка 1 из 46</div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+        </div>
+
+        <div class="card-study-area" id="studyArea">
+            <div class="card-container">
+                <div class="card" id="flashcard">
+                    <div class="card-hint">Нажмите для переворота</div>
+                    <div class="card-face card-front">
+                        <div class="chinese-character" id="chineseChar">支教</div>
+                    </div>
+                    <div class="card-face card-back">
+                        <div class="card-content">
+                            <div class="pinyin" id="pinyin">zhījiào</div>
+                            <div class="translation" id="translation">программа добровольного преподавания (обычно в трудных/отдалённых регионах)</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="controls">
+                <button class="btn btn-secondary" onclick="previousCard()">← Назад</button>
+                <button class="btn btn-primary" onclick="markAsKnown()">✓ Запомнил</button>
+                <button class="btn btn-secondary" onclick="nextCard()">Вперед →</button>
+            </div>
+
+            <div class="nav-controls">
+                <button class="btn" onclick="shuffleCards()">🔀 Перемешать</button>
+                <button class="btn" onclick="resetCards()">🔄 Начать заново</button>
+            </div>
+        </div>
+
+        <div class="completion-screen" id="completionScreen">
+            <div class="completion-title">🎉 Поздравляем!</div>
+            <div class="completion-message">
+                Вы изучили все карточки!<br>
+                Отличная работа в изучении китайского языка!<br><br>
+                <strong>继续加油！</strong> (Продолжайте в том же духе!)
+            </div>
+            <button class="btn btn-primary" onclick="resetCards()">Начать заново</button>
+        </div>
+    </div>
+
+    <script>
+        const flashcards = [
+            { chinese: '支教', pinyin: 'zhījiào', translation: 'программа добровольного преподавания (обычно в трудных/отдалённых регионах)' },
+            { chinese: '行动', pinyin: 'xíngdòng', translation: 'действовать; действие, акция' },
+            { chinese: '家访', pinyin: 'jiāfǎng', translation: 'посещение дома ученика учителем' },
+            { chinese: '发言', pinyin: 'fāyán', translation: 'выступать, высказываться (на собрании, на уроке); речь, выступление' },
+            { chinese: '及格', pinyin: 'jígé', translation: 'сдать экзамен, пройти тест (получить проходной балл)' },
+            { chinese: '交往', pinyin: 'jiāowǎng', translation: 'общаться, поддерживать отношения (дружеские, романтические, социальные)' },
+            { chinese: '几乎', pinyin: 'jīhū', translation: 'почти' },
+            { chinese: '家务', pinyin: 'jiāwù', translation: 'домашние дела' },
+            { chinese: '体贴', pinyin: 'tǐtiē', translation: 'заботливый, внимательный' },
+            { chinese: '排练', pinyin: 'páiliàn', translation: 'репетировать' },
+            { chinese: '蝴蝶', pinyin: 'húdié', translation: 'бабочка' },
+            { chinese: '舞蹈', pinyin: 'wǔdǎo', translation: 'танец' },
+            { chinese: '冠军', pinyin: 'guànjūn', translation: 'чемпион' },
+            { chinese: '鼓掌', pinyin: 'gǔzhǎng', translation: 'аплодировать' },
+            { chinese: '用功', pinyin: 'yònggōng', translation: 'старательный, прилежный (в учёбе)' },
+            { chinese: '进步', pinyin: 'jìnbù', translation: 'прогрессировать; прогресс' },
+            { chinese: '题目', pinyin: 'tímù', translation: 'тема; заголовок; экзаменационное задание' },
+            { chinese: '朗读', pinyin: 'lǎngdú', translation: 'читать вслух (часто о стихах, текстах)' },
+            { chinese: '温柔', pinyin: 'wēnróu', translation: 'нежный, ласковый, мягкий (обычно о человеке, характере, голосе)' },
+            { chinese: '热烈', pinyin: 'rèliè', translation: 'горячий, восторженный, оживлённый' },
+            { chinese: '勇气', pinyin: 'yǒngqì', translation: 'смелость, храбрость' },
+            { chinese: '青壮年', pinyin: 'qīngzhuàngnián', translation: 'молодые и зрелые люди в расцвете сил (примерно 20–40 лет)' },
+            { chinese: '闯', pinyin: 'chuǎng', translation: 'пробиваться; рисковать; врываться' },
+            { chinese: '留守', pinyin: 'liúshǒu', translation: 'оставаться (дома, в деревне) для ведения дел, когда другие уезжают' },
+            { chinese: '主题', pinyin: 'zhǔtí', translation: 'главная тема' },
+            { chinese: '地理', pinyin: 'dìlǐ', translation: 'география' },
+            { chinese: '采访', pinyin: 'cǎifǎng', translation: 'брать интервью' },
+            { chinese: '利用', pinyin: 'lìyòng', translation: 'использовать (ресурс, возможность, человека)' },
+            { chinese: '空闲', pinyin: 'kòngxián', translation: 'свободное время, время отдыха' },
+            { chinese: '指导', pinyin: 'zhǐdǎo', translation: 'инструктировать, руководить, направлять' },
+            { chinese: '培训', pinyin: 'péixùn', translation: 'обучать, тренировать' },
+            { chinese: '建设', pinyin: 'jiànshè', translation: 'строить, создавать (экономику, город, дисциплину и т. д.)' },
+            { chinese: '操心', pinyin: 'cāoxīn', translation: 'беспокоиться о, заботиться' },
+            { chinese: '承担', pinyin: 'chéngdān', translation: 'брать на себя, нести (ответственность, расходы, задачу)' },
+            { chinese: '义务', pinyin: 'yìwù', translation: 'обязанность; также: безвозмездный (义务教育 — обязательное образование; 义务劳动 — бесплатный труд)' },
+            { chinese: '艰巨', pinyin: 'jiānjù', translation: 'трудный, тяжёлый (о задаче, работе)' },
+            { chinese: '力量', pinyin: 'lìliàng', translation: 'сила, мощь, способность (физическая, социальная, военная, природная)' },
+            { chinese: '得知', pinyin: 'dézhī', translation: 'узнать, получить информацию' },
+            { chinese: '得了', pinyin: 'délē', translation: 'получить, завоевать (награду, звание)' },
+            { chinese: '避免', pinyin: 'bìmiǎn', translation: 'избегать, предотвращать' },
+            { chinese: '多余', pinyin: 'duōyú', translation: 'излишний, ненужный' },
+            { chinese: '精力', pinyin: 'jīnglì', translation: 'энергия, силы, выносливость (человека, психические и физические ресурсы)' },
+            { chinese: '测验', pinyin: 'cèyàn', translation: 'проверять; тест, контрольная работа' },
+            { chinese: '试验', pinyin: 'shìyàn', translation: 'испытывать, экспериментировать; испытание, эксперимент' },
+            { chinese: '抄', pinyin: 'chāo', translation: 'переписывать; списывать; конфисковывать; срезать путь; скрестить руки' },
+            { chinese: '试卷', pinyin: 'shìjuàn', translation: 'экзаменационная работа, бланк с заданиями' },
+            { chinese: '夏令营', pinyin: 'xiàlìngyíng', translation: 'летний лагерь' },
+            { chinese: '操场', pinyin: 'cāochǎng', translation: 'спортивная площадка' },
+            { chinese: '辅导', pinyin: 'fǔdǎo', translation: 'репетиторствовать; давать консультации,辅导员 — куратор' },
+            { chinese: '收获', pinyin: 'shōuhuò', translation: 'собирать урожай; получать результат, выгоду' },
+            { chinese: '铃', pinyin: 'líng', translation: 'звонок (например, школьный)' },
+            { chinese: '腿部', pinyin: 'tuǐbù', translation: 'часть ноги (область ноги)' },
+            { chinese: '改正', pinyin: 'gǎizhèng', translation: 'исправлять, вносить исправления; исправляться' }
+        ];
+
+        let currentIndex = 0;
+        let activeCards = [...flashcards];
+        let isFlipped = false;
+
+        function updateCard() {
+            if (activeCards.length === 0) {
+                showCompletionScreen();
+                return;
+            }
+
+            const card = activeCards[currentIndex];
+            document.getElementById('chineseChar').textContent = card.chinese;
+            document.getElementById('pinyin').textContent = card.pinyin;
+            document.getElementById('translation').textContent = card.translation;
+            document.getElementById('counter').textContent = `Карточка ${currentIndex + 1} из ${activeCards.length}`;
+            
+            // Reset flip state
+            const flashcard = document.getElementById('flashcard');
+            flashcard.classList.remove('flipped');
+            isFlipped = false;
+            
+            updateProgressBar();
+        }
+
+        function updateProgressBar() {
+            const totalOriginal = flashcards.length;
+            const remaining = activeCards.length;
+            const completed = totalOriginal - remaining;
+            const progress = (completed / totalOriginal) * 100;
+            document.getElementById('progressFill').style.width = `${progress}%`;
+        }
+
+        function flipCard() {
+            const flashcard = document.getElementById('flashcard');
+            flashcard.classList.toggle('flipped');
+            isFlipped = !isFlipped;
+        }
+
+        function nextCard() {
+            if (activeCards.length === 0) return;
+            currentIndex = (currentIndex + 1) % activeCards.length;
+            updateCard();
+        }
+
+        function previousCard() {
+            if (activeCards.length === 0) return;
+            currentIndex = currentIndex === 0 ? activeCards.length - 1 : currentIndex - 1;
+            updateCard();
+        }
+
+        function markAsKnown() {
+            if (activeCards.length === 0) return;
+            
+            activeCards.splice(currentIndex, 1);
+            
+            if (activeCards.length === 0) {
+                showCompletionScreen();
+                return;
+            }
+            
+            if (currentIndex >= activeCards.length) {
+                currentIndex = 0;
+            }
+            
+            updateCard();
+        }
+
+        function shuffleCards() {
+            for (let i = activeCards.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [activeCards[i], activeCards[j]] = [activeCards[j], activeCards[i]];
+            }
+            currentIndex = 0;
+            updateCard();
+        }
+
+        function resetCards() {
+            activeCards = [...flashcards];
+            currentIndex = 0;
+            document.getElementById('studyArea').style.display = 'block';
+            document.getElementById('completionScreen').classList.remove('active');
+            updateCard();
+        }
+
+        function showCompletionScreen() {
+            document.getElementById('studyArea').style.display = 'none';
+            document.getElementById('completionScreen').classList.add('active');
+        }
+
+        // Event listeners
+        document.getElementById('flashcard').addEventListener('click', flipCard);
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', function(event) {
+            if (activeCards.length === 0) return;
+            
+            switch(event.key) {
+                case 'ArrowLeft':
+                    previousCard();
+                    break;
+                case 'ArrowRight':
+                    nextCard();
+                    break;
+                case ' ':
+                    event.preventDefault();
+                    flipCard();
+                    break;
+                case 'Delete':
+                case 'Backspace':
+                    if (event.ctrlKey) {
+                        markAsKnown();
+                    }
+                    break;
+            }
+        });
+
+        // Initialize
+        updateCard();
+
+        // Add subtle flip animation hint
+        setTimeout(() => {
+            const flashcard = document.getElementById('flashcard');
+            flashcard.classList.add('flip-animation');
+            setTimeout(() => {
+                flashcard.classList.remove('flip-animation');
+            }, 4000);
+        }, 1000);
+    </script>
+</body>
+</html>
