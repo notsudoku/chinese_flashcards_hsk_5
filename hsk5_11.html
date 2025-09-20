@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Флэшкарточки - Китайский язык</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 600px;
+            width: 100%;
+            text-align: center;
+        }
+
+        .header {
+            margin-bottom: 30px;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .counter {
+            font-size: 1.2em;
+            margin-bottom: 20px;
+            color: rgba(255,255,255,0.9);
+        }
+
+        .card-container {
+            perspective: 1000px;
+            margin: 40px auto;
+            height: 400px;
+            position: relative;
+        }
+
+        .card {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.6s cubic-bezier(0.4, 0.0, 0.2, 1);
+            cursor: pointer;
+        }
+
+        .card.flipped {
+            transform: rotateY(180deg);
+        }
+
+        .card-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            padding: 40px;
+        }
+
+        .card-front {
+            background: white;
+            color: #333;
+        }
+
+        .card-back {
+            background: #4a90e2;
+            color: #ffd700;
+            transform: rotateY(180deg);
+        }
+
+        .chinese-character {
+            font-size: 5em;
+            font-weight: bold;
+            margin-bottom: 20px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .pinyin {
+            font-size: 2em;
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+
+        .translation {
+            font-size: 1.5em;
+            line-height: 1.4;
+            text-align: center;
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin: 30px 0;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 25px;
+            font-size: 1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .btn-success {
+            background: linear-gradient(45deg, #56ab2f, #a8e6cf);
+            color: white;
+        }
+
+        .btn-warning {
+            background: linear-gradient(45deg, #f093fb, #f5576c);
+            color: white;
+        }
+
+        .navigation {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .congratulations {
+            display: none;
+            background: white;
+            border-radius: 20px;
+            padding: 50px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+            animation: bounceIn 0.8s ease;
+        }
+
+        .congratulations.show {
+            display: block;
+        }
+
+        .congratulations h2 {
+            color: #4a90e2;
+            font-size: 2.5em;
+            margin-bottom: 20px;
+        }
+
+        .congratulations p {
+            color: #666;
+            font-size: 1.3em;
+            line-height: 1.6;
+        }
+
+        @keyframes bounceIn {
+            0% {
+                transform: scale(0.3);
+                opacity: 0;
+            }
+            50% {
+                transform: scale(1.05);
+            }
+            70% {
+                transform: scale(0.9);
+            }
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .flip-hint {
+            color: rgba(255,255,255,0.8);
+            font-size: 0.9em;
+            margin-top: 15px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.6; }
+            50% { opacity: 1; }
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2em;
+            }
+
+            .card-container {
+                height: 350px;
+                margin: 30px auto;
+            }
+
+            .chinese-character {
+                font-size: 4em;
+            }
+
+            .pinyin {
+                font-size: 1.6em;
+            }
+
+            .translation {
+                font-size: 1.2em;
+            }
+
+            .controls {
+                gap: 10px;
+            }
+
+            .btn {
+                padding: 10px 20px;
+                font-size: 0.9em;
+            }
+
+            .card-face {
+                padding: 30px 20px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .card-container {
+                height: 300px;
+            }
+
+            .chinese-character {
+                font-size: 3.5em;
+            }
+
+            .pinyin {
+                font-size: 1.4em;
+            }
+
+            .translation {
+                font-size: 1.1em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🇨🇳 Изучение китайского языка</h1>
+            <div class="counter" id="counter">Карточка 1 из 50</div>
+        </div>
+
+        <div class="card-container" id="cardContainer">
+            <div class="card" id="card" onclick="flipCard()">
+                <div class="card-face card-front">
+                    <div class="chinese-character" id="chineseChar">闹钟</div>
+                </div>
+                <div class="card-face card-back">
+                    <div class="pinyin" id="pinyin">nàozhōng</div>
+                    <div class="translation" id="translation">будильник</div>
+                </div>
+            </div>
+            <div class="flip-hint">Нажмите на карточку, чтобы перевернуть</div>
+        </div>
+
+        <div class="controls">
+            <button class="btn btn-warning" onclick="shuffleCards()">🔀 Перемешать</button>
+            <button class="btn btn-success" onclick="markAsLearned()">✅ Запомнил</button>
+        </div>
+
+        <div class="navigation">
+            <button class="btn btn-primary" onclick="prevCard()">← Назад</button>
+            <button class="btn btn-primary" onclick="nextCard()">Вперед →</button>
+        </div>
+
+        <div class="congratulations" id="congratulations">
+            <h2>🎉 Поздравляем!</h2>
+            <p>Вы изучили все карточки! Отличная работа!<br><br>
+            Нажмите "Перемешать", чтобы повторить изученные слова.</p>
+        </div>
+    </div>
+
+    <script>
+        const flashcards = [
+            { chinese: '闹钟', pinyin: 'nàozhōng', translation: 'будильник' },
+            { chinese: '危害', pinyin: 'wēihài', translation: 'вред, ущерб' },
+            { chinese: '人类', pinyin: 'rénlèi', translation: 'человечество' },
+            { chinese: '机制', pinyin: 'jīzhì', translation: 'механизм' },
+            { chinese: '生物', pinyin: 'shēngwù', translation: 'живое существо' },
+            { chinese: '规律', pinyin: 'guīlǜ', translation: 'закон, закономерность, правило' },
+            { chinese: '光线', pinyin: 'guāngxiàn', translation: 'световой луч, поток света' },
+            { chinese: '必要', pinyin: 'bìyào', translation: 'необходимый, нужный' },
+            { chinese: '过度', pinyin: 'guòdù', translation: 'переходить, переход' },
+            { chinese: '浅', pinyin: 'qiǎn', translation: 'неглубокий, светлый (о цвете), слабый (о свете)' },
+            { chinese: '现代', pinyin: 'xiàndài', translation: 'современность, современный' },
+            { chinese: '享受', pinyin: 'xiǎngshòu', translation: 'наслаждаться, получать удовольствие' },
+            { chinese: '用途', pinyin: 'yòngtú', translation: 'применение, использование' },
+            { chinese: '实验', pinyin: 'shíyàn', translation: 'эксперимент на практике' },
+            { chinese: '铃', pinyin: 'líng', translation: 'звонок, колокольчик' },
+            { chinese: '所', pinyin: 'suǒ', translation: 'грам. слово: образует пассив, делает глагол существительным (то, что…)' },
+            { chinese: '状态', pinyin: 'zhuàngtài', translation: 'состояние, положение' },
+            { chinese: '清醒', pinyin: 'qīngxǐng', translation: 'ясный, бодрый; быть в сознании' },
+            { chinese: '呼吸', pinyin: 'hūxī', translation: 'дышать; дыхание' },
+            { chinese: '心理', pinyin: 'xīnlǐ', translation: 'психика; психология' },
+            { chinese: '慌张', pinyin: 'huāngzhāng', translation: 'растерянный, взволнованный' },
+            { chinese: '情绪', pinyin: 'qíngxù', translation: 'настроение, эмоциональное состояние' },
+            { chinese: '低落', pinyin: 'dīluò', translation: 'упадочный, подавленный, депрессия' },
+            { chinese: '记忆', pinyin: 'jìyì', translation: 'память, воспоминание' },
+            { chinese: '计算', pinyin: 'jìsuàn', translation: 'считать, вычислять' },
+            { chinese: '相当', pinyin: 'xiāngdāng', translation: 'довольно, весьма; соответствовать; быть равным' },
+            { chinese: '持续', pinyin: 'chíxù', translation: 'продолжаться, длиться' },
+            { chinese: '数', pinyin: 'shù', translation: 'число, количество' },
+            { chinese: '导致', pinyin: 'dǎozhì', translation: 'приводить к, вызывать' },
+            { chinese: '失眠', pinyin: 'shīmián', translation: 'бессонница' },
+            { chinese: '精神', pinyin: 'jīngshén', translation: 'дух, энергия' },
+            { chinese: '专家', pinyin: 'zhuānjiā', translation: 'эксперт, специалист' },
+            { chinese: '采用', pinyin: 'cǎiyòng', translation: 'применять, использовать' },
+            { chinese: '柔和', pinyin: 'róuhé', translation: 'мягкий (свет, звук, выражение лица)' },
+            { chinese: '愿望', pinyin: 'yuànwàng', translation: 'желание, стремление, мечта' },
+            { chinese: '窗帘', pinyin: 'chuānglián', translation: 'штора' },
+            { chinese: '市场', pinyin: 'shìchǎng', translation: 'рынок' },
+            { chinese: '产品', pinyin: 'chǎnpǐn', translation: 'продукт, изделие, продукция' },
+            { chinese: '模仿', pinyin: 'mófǎng', translation: 'подражать, имитировать, копировать' },
+            { chinese: '避免', pinyin: 'bìmiǎn', translation: 'избегать, предотвращать' },
+            { chinese: '传统', pinyin: 'chuántǒng', translation: 'традиция, традиционный' },
+            { chinese: '生物钟', pinyin: 'shēngwùzhōng', translation: 'биологические часы' },
+            { chinese: '新陈代谢', pinyin: 'xīnchéndàixiè', translation: 'обмен веществ, метаболизм' },
+            { chinese: '肾上腺素', pinyin: 'shènshàngxiànsù', translation: 'адреналин' },
+            { chinese: '血压', pinyin: 'xuèyā', translation: 'артериальное давление' },
+            { chinese: '来/过', pinyin: 'lái/guò', translation: 'грамматика (аспектные суффиксы: «приходил», «опыт»)' },
+            { chinese: '所（语法）', pinyin: 'suǒ (yǔfǎ)', translation: 'грамматика (образует объект перед глаголом: 所说 — сказанное)' },
+            { chinese: '相当（语法）', pinyin: 'xiāngdāng (yǔfǎ)', translation: 'грамматика: ① «довольно, весьма» (相当好 — довольно хорошо), ② «соответствовать» (不相当 — неравный)' },
+            { chinese: '数（语法）', pinyin: 'shù (yǔfǎ)', translation: 'грамматика: может означать «несколько» (数天 — несколько дней)' },
+            { chinese: '持续 VS 继续', pinyin: 'chíxù VS jìxù', translation: '持续 — длиться без перерыва (持续三天 — продолжалось три дня). 继续 — продолжить после перерыва (继续工作 — продолжить работать)' }
+        ];
+
+        let currentCards = [...flashcards];
+        let currentIndex = 0;
+        let isFlipped = false;
+
+        function updateCard() {
+            if (currentCards.length === 0) {
+                showCongratulations();
+                return;
+            }
+
+            const card = currentCards[currentIndex];
+            document.getElementById('chineseChar').textContent = card.chinese;
+            document.getElementById('pinyin').textContent = card.pinyin;
+            document.getElementById('translation').textContent = card.translation;
+            document.getElementById('counter').textContent = `Карточка ${currentIndex + 1} из ${currentCards.length}`;
+            
+            // Сбросить переворот карточки
+            document.getElementById('card').classList.remove('flipped');
+            isFlipped = false;
+        }
+
+        function flipCard() {
+            if (currentCards.length === 0) return;
+            
+            const card = document.getElementById('card');
+            card.classList.toggle('flipped');
+            isFlipped = !isFlipped;
+        }
+
+        function nextCard() {
+            if (currentCards.length === 0) return;
+            
+            currentIndex = (currentIndex + 1) % currentCards.length;
+            updateCard();
+        }
+
+        function prevCard() {
+            if (currentCards.length === 0) return;
+            
+            currentIndex = currentIndex === 0 ? currentCards.length - 1 : currentIndex - 1;
+            updateCard();
+        }
+
+        function shuffleCards() {
+            if (flashcards.length === 0) return;
+            
+            // Восстановить все карточки и перемешать
+            currentCards = [...flashcards];
+            for (let i = currentCards.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [currentCards[i], currentCards[j]] = [currentCards[j], currentCards[i]];
+            }
+            currentIndex = 0;
+            hideCongratulations();
+            updateCard();
+        }
+
+        function markAsLearned() {
+            if (currentCards.length === 0) return;
+            
+            currentCards.splice(currentIndex, 1);
+            
+            if (currentCards.length === 0) {
+                showCongratulations();
+                return;
+            }
+            
+            if (currentIndex >= currentCards.length) {
+                currentIndex = 0;
+            }
+            
+            updateCard();
+        }
+
+        function showCongratulations() {
+            document.getElementById('cardContainer').style.display = 'none';
+            document.getElementById('congratulations').classList.add('show');
+        }
+
+        function hideCongratulations() {
+            document.getElementById('cardContainer').style.display = 'block';
+            document.getElementById('congratulations').classList.remove('show');
+        }
+
+        // Инициализация
+        updateCard();
+
+        // Добавить поддержку клавиатуры
+        document.addEventListener('keydown', function(event) {
+            switch(event.key) {
+                case 'ArrowLeft':
+                    prevCard();
+                    break;
+                case 'ArrowRight':
+                    nextCard();
+                    break;
+                case ' ':
+                    event.preventDefault();
+                    flipCard();
+                    break;
+                case 'Enter':
+                    markAsLearned();
+                    break;
+            }
+        });
+    </script>
+</body>
+</html>
