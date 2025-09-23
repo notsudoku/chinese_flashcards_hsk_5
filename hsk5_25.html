@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Китайские флэшкарточки</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 600px;
+            text-align: center;
+        }
+
+        .header {
+            margin-bottom: 30px;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .counter {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            margin-bottom: 20px;
+        }
+
+        .card-container {
+            perspective: 1000px;
+            margin: 30px 0;
+            height: 300px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .card {
+            width: 100%;
+            max-width: 400px;
+            height: 280px;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.6s ease;
+            cursor: pointer;
+        }
+
+        .card.flipped {
+            transform: rotateY(180deg);
+        }
+
+        .card-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            border-radius: 15px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .card-front {
+            background: white;
+            color: #333;
+        }
+
+        .card-back {
+            background: #2196F3;
+            color: #FFD700;
+            transform: rotateY(180deg);
+        }
+
+        .chinese-char {
+            font-size: 4rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+            line-height: 1.2;
+        }
+
+        .pinyin {
+            font-size: 1.8rem;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .translation {
+            font-size: 1.3rem;
+            line-height: 1.4;
+            text-align: center;
+            max-width: 90%;
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin: 30px 0;
+        }
+
+        .btn {
+            background: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            color: #333;
+            min-width: 120px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn-primary {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #45a049;
+        }
+
+        .btn-secondary {
+            background: #FF9800;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #e68900;
+        }
+
+        .navigation {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .nav-btn {
+            background: rgba(255,255,255,0.2);
+            border: 2px solid white;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+            backdrop-filter: blur(10px);
+        }
+
+        .nav-btn:hover:not(:disabled) {
+            background: rgba(255,255,255,0.3);
+            transform: translateY(-1px);
+        }
+
+        .nav-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .completion-screen {
+            display: none;
+            text-align: center;
+            color: white;
+        }
+
+        .completion-screen.active {
+            display: block;
+        }
+
+        .celebration {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {
+                transform: translateY(0);
+            }
+            40% {
+                transform: translateY(-20px);
+            }
+            60% {
+                transform: translateY(-10px);
+            }
+        }
+
+        .flip-hint {
+            color: rgba(255,255,255,0.7);
+            font-size: 0.9rem;
+            margin-top: 15px;
+            font-style: italic;
+        }
+
+        /* Mobile responsiveness */
+        @media (max-width: 480px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .chinese-char {
+                font-size: 3rem;
+            }
+
+            .pinyin {
+                font-size: 1.5rem;
+            }
+
+            .translation {
+                font-size: 1.1rem;
+            }
+
+            .controls {
+                gap: 10px;
+            }
+
+            .btn {
+                padding: 10px 20px;
+                font-size: 0.9rem;
+                min-width: 100px;
+            }
+
+            .card-container {
+                height: 250px;
+            }
+
+            .card {
+                height: 230px;
+            }
+        }
+
+        @media (max-width: 360px) {
+            .controls {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .navigation {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .btn, .nav-btn {
+                width: 200px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>汉语 флэшкарточки</h1>
+            <div class="counter" id="counter">Карточка 1 из 64</div>
+        </div>
+
+        <div class="main-content" id="mainContent">
+            <div class="card-container">
+                <div class="card" id="flashcard">
+                    <div class="card-face card-front">
+                        <div class="chinese-char" id="chineseChar">返航</div>
+                    </div>
+                    <div class="card-face card-back">
+                        <div class="pinyin" id="pinyin">fǎnháng</div>
+                        <div class="translation" id="translation">возвращение в порт / обратный рейс (на базу, в родную гавань)</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flip-hint">Нажмите на карточку, чтобы перевернуть</div>
+
+            <div class="controls">
+                <button class="btn btn-primary" id="rememberedBtn">✓ Запомнил</button>
+                <button class="btn btn-secondary" id="shuffleBtn">🔀 Перемешать</button>
+            </div>
+
+            <div class="navigation">
+                <button class="nav-btn" id="prevBtn">← Назад</button>
+                <button class="nav-btn" id="nextBtn">Вперед →</button>
+            </div>
+        </div>
+
+        <div class="completion-screen" id="completionScreen">
+            <div class="celebration">🎉</div>
+            <h2>Поздравляем!</h2>
+            <p>Вы изучили все карточки!</p>
+            <button class="btn btn-primary" id="restartBtn" style="margin-top: 20px;">Начать заново</button>
+        </div>
+    </div>
+
+    <script>
+        class ChineseFlashcards {
+            constructor() {
+                this.originalWords = [
+                    { chinese: '返航', pinyin: 'fǎnháng', translation: 'возвращение в порт / обратный рейс (на базу, в родную гавань)' },
+                    { chinese: '恶劣', pinyin: 'èliè', translation: 'плохой, скверный (天气 погода / 态度 отношение / 关系 отношения / 条件 условия / 影响 влияние / 表现 проявление)' },
+                    { chinese: '可怕', pinyin: 'kěpà', translation: 'страшный, ужасный, пугающий' },
+                    { chinese: '风浪', pinyin: 'fēnglàng', translation: 'ветер и волны; шторм, штормовая волна; перен. трудное положение' },
+                    { chinese: '慌张', pinyin: 'huāngzhāng', translation: 'растерянный, взволнованный, в панике (神情 выражение / 表情 мимика / 眼神 взгляд / 动作 действия)' },
+                    { chinese: '舱', pinyin: 'cāng', translation: 'каюта, отсек, кабина (напр. 机舱 — самолётная кабина; 船舱 — корабельная каюта)' },
+                    { chinese: '使劲儿', pinyin: 'shǐjìnr', translation: 'приложить все силы, изо всех сил' },
+                    { chinese: '朝', pinyin: 'cháo', translation: 'по направлению к..., лицом к... 坐西朝东 — сидеть лицом на восток, 朝窗户望去 — посмотреть в окно, 朝东走去 — идти на восток' },
+                    { chinese: '简直', pinyin: 'jiǎnzhí', translation: 'просто, прямо-таки, попросту. 简直莫名其妙 — просто непонятно, 简直像蜗牛一样慢 — медленно как улитка' },
+                    { chinese: '沉', pinyin: 'chén', translation: 'тонуть, погружаться, уходить под воду' },
+                    { chinese: '严肃', pinyin: 'yánsù', translation: 'серьёзный, строгий (表情 выражение / 态度 отношение / 气氛 атмосфера / 内容 содержание). VS 严格 — подчёркивает стиль, поведение. 严肃批评, 严肃的表情, 严肃的气氛' },
+                    { chinese: '正当', pinyin: 'zhèngdāng', translation: 'надлежащий, должный, правильный; как раз (в подходящее время)' },
+                    { chinese: '水手', pinyin: 'shuǐshǒu', translation: 'моряк, матрос' },
+                    { chinese: '加满', pinyin: 'jiāmǎn', translation: 'наполнить до краёв, заполнить полностью' },
+                    { chinese: '望远镜', pinyin: 'wàngyuǎnjìng', translation: 'подзорная труба, бинокль, телескоп (букв. «инструмент для смотрения вдаль»)' },
+                    { chinese: '望去', pinyin: 'wàngqù', translation: 'посмотреть (в каком-то направлении), взглянуть вдаль. Обычно: 朝 + направление + 望去' },
+                    { chinese: '水位', pinyin: 'shuǐwèi', translation: 'уровень воды' },
+                    { chinese: '狂', pinyin: 'kuáng', translation: 'безумный, бешеный, дикий (может быть и «сумасшедший» про человека, и «яростный» про ветер/волну)' },
+                    { chinese: '狂风', pinyin: 'kuángfēng', translation: 'ураганный ветер, сильный порыв' },
+                    { chinese: '浪', pinyin: 'làng', translation: 'волна (морская); перен. «беспокойство, суета»' },
+                    { chinese: '依然', pinyin: 'yīrán', translation: 'по-прежнему, всё ещё, как и раньше' },
+                    { chinese: '威胁', pinyin: 'wēixié', translation: 'угрожать; угроза (人类 человечеству / 安全 безопасность / 健康 здоровье / 生命 жизнь)' },
+                    { chinese: '平衡', pinyin: 'pínghéng', translation: 'сущ/глаг баланс, равновесие; уравновешивать' },
+                    { chinese: '猛烈', pinyin: 'měngliè', translation: 'яростный, свирепый, ожесточённый. 猛烈的风暴 — свирепый шторм, 猛烈的火力 — мощный огонь, 猛烈的感情 — бурные чувства' },
+                    { chinese: '相似', pinyin: 'xiāngsì', translation: 'похожий, схожий (情況 ситуация / 爱好 интерес / 观点 точка зрения / 看法 мнение)' },
+                    { chinese: '重量', pinyin: 'zhòngliàng', translation: 'вес, масса' },
+                    { chinese: '窄', pinyin: 'zhǎi', translation: 'узкий' },
+                    { chinese: '根基', pinyin: 'gēnjī', translation: 'корень, фундамент, основание; переносно: устои, основа существования (чего-либо, напр. государства, семьи, дела)' },
+                    { chinese: '钢铁', pinyin: 'gāngtiě', translation: 'сталь и железо; перен. «несгибаемый, твёрдый»' },
+                    { chinese: '吨', pinyin: 'dūn', translation: 'тонна (货物 груз / 钢铁 сталь / 粮食 зерно)' },
+                    { chinese: '风景', pinyin: 'fēngjǐng', translation: 'пейзаж, вид, ландшафт' },
+                    { chinese: '谷', pinyin: 'gǔ', translation: 'долина, ущелье; впадина; также в составе слов (например, 鬼谷 Guǐgǔ — Долина духов)' },
+                    { chinese: '万丈', pinyin: 'wànzhàng', translation: 'десять тысяч чжаней (очень большая глубина/высота); обр. «бездна, огромная пропасть»' },
+                    { chinese: '深渊', pinyin: 'shēnyuān', translation: 'бездна, пропасть, пучина' },
+                    { chinese: '游览', pinyin: 'yóulǎn', translation: 'осматривать (достопримечательности), посещать' },
+                    { chinese: '发抖', pinyin: 'fādǒu', translation: 'дрожать, трястись (от холода, страха, волнения)' },
+                    { chinese: '负重', pinyin: 'fùzhòng', translation: 'нести тяжесть, груз; быть нагруженным' },
+                    { chinese: '摔倒', pinyin: 'shuāidǎo', translation: 'упасть, бросить (倒 упасть / 伤 получить травму / 碎 разбиться / 下去 упасть вниз)' },
+                    { chinese: '妇女', pinyin: 'fùnǚ', translation: 'женщина (часто в сочетаниях): 家庭妇女 — домохозяйка; 职业妇女 — работающая женщина' },
+                    { chinese: '起', pinyin: 'qǐ', translation: 'вместе; также счётное слово для происшествий: 一起意外 — один случай происшествия' },
+                    { chinese: '丝毫', pinyin: 'sīháo', translation: 'ни капли, нисколько, ничуть (обычно с отрицанием: 毫不/丝毫不)' },
+                    { chinese: '意外', pinyin: 'yìwài', translation: 'неожиданность, случайность; несчастный случай' },
+                    { chinese: '滚', pinyin: 'gǔn', translation: 'катиться, перекатываться; грубо: «убирайся»' },
+                    { chinese: '风险', pinyin: 'fēngxiǎn', translation: 'риск, опасность (напр. 冒风险 — рисковать, 承担风险 — брать на себя риск)' },
+                    { chinese: '谨慎', pinyin: 'jǐnshèn', translation: 'прил осторожный, осмотрительный (对待 относиться / 处理 обрабатывать / 工作 работа / 从事 заниматься / 打开 открывать)' },
+                    { chinese: '效应', pinyin: 'xiàoyìng', translation: 'эффект, отклик, воздействие' },
+                    { chinese: '肩', pinyin: 'jiān', translation: 'плечо' },
+                    { chinese: '胸', pinyin: 'xiōng', translation: 'грудь, грудная клетка' },
+                    { chinese: '承受', pinyin: 'chéngshòu', translation: 'выдержать, вынести, перенести (压力 давление / 重量 вес / 痛苦 страдание / 寂寞 одиночество / 挑战 вызов)' },
+                    { chinese: '理想', pinyin: 'lǐxiǎng', translation: 'сущ/прил идеал, мечта, стремление; идеальный, совершенный' },
+                    { chinese: '和尚', pinyin: 'héshang', translation: 'буддийский монах' },
+                    { chinese: '风暴', pinyin: 'fēngbào', translation: 'буря, шторм; перен. буря (событий, эмоций)' },
+                    { chinese: '彻底', pinyin: 'chèdǐ', translation: 'полностью, до конца (放弃 отказаться / 检查 проверить / 改正 исправить / 改变 изменить / 解决 решить)' },
+                    { chinese: '承受不起', pinyin: 'chéngshòu bùqǐ', translation: 'не выдержать, не вынести' },
+                    { chinese: '承受得住', pinyin: 'chéngshòu dezhù', translation: 'выдержать, справиться' },
+                    { chinese: '严格', pinyin: 'yángé', translation: 'строгий (о правилах, стандартах, требованиях, дисциплине). VS 严肃 — подчёркивает требования. 严格要求, 严格的制度, 对孩子很严格' },
+                    { chinese: '厘米', pinyin: 'lǐmǐ', translation: 'сантиметр' },
+                    { chinese: '克', pinyin: 'kè', translation: 'грамм' },
+                    { chinese: '平方', pinyin: 'píngfāng', translation: 'квадратный (метр и др.), напр. 平方米 — квадратный метр' },
+                    { chinese: '尺子', pinyin: 'chǐzi', translation: 'линейка' },
+                    { chinese: '胶水', pinyin: 'jiāoshuǐ', translation: 'клей' },
+                    { chinese: '文具', pinyin: 'wénjù', translation: 'письменные принадлежности, канцелярия' },
+                    { chinese: '寂寞', pinyin: 'jìmò', translation: 'прил одинокий; тихий, уединенный' }
+                ];
+                
+                this.words = [...this.originalWords];
+                this.currentIndex = 0;
+                this.isFlipped = false;
+                
+                this.initElements();
+                this.bindEvents();
+                this.updateCard();
+                this.updateCounter();
+                this.updateNavigation();
+            }
+
+            initElements() {
+                this.flashcard = document.getElementById('flashcard');
+                this.chineseChar = document.getElementById('chineseChar');
+                this.pinyin = document.getElementById('pinyin');
+                this.translation = document.getElementById('translation');
+                this.counter = document.getElementById('counter');
+                this.rememberedBtn = document.getElementById('rememberedBtn');
+                this.shuffleBtn = document.getElementById('shuffleBtn');
+                this.prevBtn = document.getElementById('prevBtn');
+                this.nextBtn = document.getElementById('nextBtn');
+                this.mainContent = document.getElementById('mainContent');
+                this.completionScreen = document.getElementById('completionScreen');
+                this.restartBtn = document.getElementById('restartBtn');
+            }
+
+            bindEvents() {
+                this.flashcard.addEventListener('click', () => this.flipCard());
+                this.rememberedBtn.addEventListener('click', () => this.removeCard());
+                this.shuffleBtn.addEventListener('click', () => this.shuffleCards());
+                this.prevBtn.addEventListener('click', () => this.previousCard());
+                this.nextBtn.addEventListener('click', () => this.nextCard());
+                this.restartBtn.addEventListener('click', () => this.restart());
+
+                // Keyboard navigation
+                document.addEventListener('keydown', (e) => {
+                    switch(e.key) {
+                        case ' ':
+                        case 'Enter':
+                            e.preventDefault();
+                            this.flipCard();
+                            break;
+                        case 'ArrowLeft':
+                            this.previousCard();
+                            break;
+                        case 'ArrowRight':
+                            this.nextCard();
+                            break;
+                        case 'r':
+                        case 'R':
+                            if (e.ctrlKey || e.metaKey) return;
+                            this.removeCard();
+                            break;
+                        case 's':
+                        case 'S':
+                            if (e.ctrlKey || e.metaKey) return;
+                            this.shuffleCards();
+                            break;
+                    }
+                });
+            }
+
+            flipCard() {
+                this.isFlipped = !this.isFlipped;
+                this.flashcard.classList.toggle('flipped', this.isFlipped);
+            }
+
+            updateCard() {
+                if (this.words.length === 0) {
+                    this.showCompletion();
+                    return;
+                }
+
+                const currentWord = this.words[this.currentIndex];
+                this.chineseChar.textContent = currentWord.chinese;
+                this.pinyin.textContent = currentWord.pinyin;
+                this.translation.textContent = currentWord.translation;
+                
+                // Reset flip state
+                this.isFlipped = false;
+                this.flashcard.classList.remove('flipped');
+            }
+
+            updateCounter() {
+                if (this.words.length > 0) {
+                    this.counter.textContent = `Карточка ${this.currentIndex + 1} из ${this.words.length}`;
+                }
+            }
+
+            updateNavigation() {
+                this.prevBtn.disabled = this.currentIndex === 0;
+                this.nextBtn.disabled = this.currentIndex === this.words.length - 1;
+            }
+
+            removeCard() {
+                if (this.words.length === 0) return;
+
+                this.words.splice(this.currentIndex, 1);
+                
+                if (this.words.length === 0) {
+                    this.showCompletion();
+                    return;
+                }
+
+                if (this.currentIndex >= this.words.length) {
+                    this.currentIndex = this.words.length - 1;
+                }
+
+                this.updateCard();
+                this.updateCounter();
+                this.updateNavigation();
+            }
+
+            shuffleCards() {
+                for (let i = this.words.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [this.words[i], this.words[j]] = [this.words[j], this.words[i]];
+                }
+                this.currentIndex = 0;
+                this.updateCard();
+                this.updateCounter();
+                this.updateNavigation();
+            }
+
+            previousCard() {
+                if (this.currentIndex > 0) {
+                    this.currentIndex--;
+                    this.updateCard();
+                    this.updateCounter();
+                    this.updateNavigation();
+                }
+            }
+
+            nextCard() {
+                if (this.currentIndex < this.words.length - 1) {
+                    this.currentIndex++;
+                    this.updateCard();
+                    this.updateCounter();
+                    this.updateNavigation();
+                }
+            }
+
+            showCompletion() {
+                this.mainContent.style.display = 'none';
+                this.completionScreen.classList.add('active');
+            }
+
+            restart() {
+                this.words = [...this.originalWords];
+                this.currentIndex = 0;
+                this.mainContent.style.display = 'block';
+                this.completionScreen.classList.remove('active');
+                this.updateCard();
+                this.updateCounter();
+                this.updateNavigation();
+            }
+        }
+
+        // Initialize the app when page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            new ChineseFlashcards();
+        });
+    </script>
+</body>
+</html>
