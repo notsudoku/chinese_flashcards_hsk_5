@@ -1,0 +1,1021 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Китайские флэшкарточки</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+        }
+
+        .header {
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .counter {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .card-container {
+            perspective: 1000px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            width: 100%;
+            height: 400px;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.6s cubic-bezier(0.4, 0.0, 0.2, 1);
+            cursor: pointer;
+        }
+
+        .card.flipped {
+            transform: rotateY(180deg);
+        }
+
+        .card-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            padding: 30px;
+            overflow-y: auto;
+        }
+
+        .card-front {
+            background: white;
+            color: #333;
+        }
+
+        .card-back {
+            background: #4285f4;
+            color: #ffd700;
+            transform: rotateY(180deg);
+        }
+
+        .chinese-character {
+            font-size: 4em;
+            font-weight: bold;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .pinyin {
+            font-size: 1.8em;
+            margin-bottom: 15px;
+            font-weight: bold;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+        }
+
+        .translation {
+            font-size: 1.3em;
+            line-height: 1.4;
+            text-align: center;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+        }
+
+        .part-of-speech {
+            font-size: 0.9em;
+            margin-top: 10px;
+            opacity: 0.85;
+            font-style: italic;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+        }
+
+        .example {
+            font-size: 0.85em;
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid rgba(255,255,255,0.3);
+            opacity: 0.9;
+            line-height: 1.3;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+        }
+
+        .collocations {
+            font-size: 0.85em;
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid rgba(255,255,255,0.3);
+            opacity: 0.9;
+            line-height: 1.5;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+            text-align: left;
+        }
+
+        .collocations-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn-primary {
+            background: #4285f4;
+            color: white;
+        }
+
+        .btn-success {
+            background: #34a853;
+            color: white;
+        }
+
+        .btn-warning {
+            background: #fbbc04;
+            color: #333;
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .navigation {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .congratulations {
+            display: none;
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            animation: celebrationPulse 2s infinite;
+        }
+
+        .congratulations.show {
+            display: block;
+        }
+
+        .congratulations h2 {
+            color: #4285f4;
+            font-size: 2.5em;
+            margin-bottom: 20px;
+        }
+
+        .congratulations p {
+            color: #666;
+            font-size: 1.3em;
+            line-height: 1.5;
+        }
+
+        @keyframes celebrationPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .flip-hint {
+            color: white;
+            margin-top: 15px;
+            opacity: 0.8;
+            font-size: 0.9em;
+        }
+
+        @media (max-width: 600px) {
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .chinese-character {
+                font-size: 3em;
+            }
+            
+            .pinyin {
+                font-size: 1.5em;
+            }
+            
+            .translation {
+                font-size: 1.1em;
+            }
+            
+            .btn {
+                padding: 10px 20px;
+                font-size: 14px;
+            }
+            
+            .controls {
+                gap: 10px;
+            }
+            
+            .card {
+                height: 380px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>中文 学习</h1>
+            <div class="counter" id="counter">Карточка 1 из 71</div>
+        </div>
+
+        <div class="card-container">
+            <div class="card" id="flashcard">
+                <div class="card-face card-front">
+                    <div class="chinese-character" id="chinese">忙碌</div>
+                </div>
+                <div class="card-face card-back">
+                    <div class="pinyin" id="pinyin">mánglù</div>
+                    <div class="translation" id="translation">занятый, обременённый делами</div>
+                    <div class="part-of-speech" id="partOfSpeech">形容词</div>
+                    <div class="example" id="example">是啊！真是忙碌的一天！</div>
+                    <div class="collocations" id="collocations"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="flip-hint">Нажмите на карточку, чтобы перевернуть</div>
+
+        <div class="navigation">
+            <button class="btn btn-secondary" id="prevBtn">← Назад</button>
+            <button class="btn btn-secondary" id="nextBtn">Вперед →</button>
+        </div>
+
+        <div class="controls">
+            <button class="btn btn-success" id="learnedBtn">✓ Запомнил</button>
+            <button class="btn btn-warning" id="shuffleBtn">🔀 Перемешать</button>
+            <button class="btn btn-primary" id="resetBtn">🔄 Сброс</button>
+        </div>
+
+        <div class="congratulations" id="congratulations">
+            <h2>🎉 Поздравляем!</h2>
+            <p>Вы изучили все карточки! Отличная работа в изучении китайского языка!</p>
+            <br>
+            <button class="btn btn-primary" id="restartBtn">Начать заново</button>
+        </div>
+    </div>
+
+    <script>
+        let cards = [
+            {
+                chinese: '忙碌',
+                pinyin: 'mánglù',
+                translation: 'занятый, обременённый делами',
+                partOfSpeech: '形容词',
+                example: '是啊！真是忙碌的一天！',
+                collocations: ''
+            },
+            {
+                chinese: '分为',
+                pinyin: 'fēnwéi',
+                translation: 'делиться на…, подразделяться на…',
+                partOfSpeech: '动词',
+                example: '',
+                collocations: ''
+            },
+            {
+                chinese: '被动',
+                pinyin: 'bèidòng',
+                translation: 'пассивный, вынужденный (без собственной инициативы)',
+                partOfSpeech: '形容词',
+                example: '老板要解雇我，这还能不被动吗？',
+                collocations: ''
+            },
+            {
+                chinese: '奴隶',
+                pinyin: 'núlì',
+                translation: 'раб, невольник',
+                partOfSpeech: '名词',
+                example: '',
+                collocations: ''
+            },
+            {
+                chinese: '虚伪',
+                pinyin: 'xūwěi',
+                translation: 'фальшивый, лицемерный, неискренний',
+                partOfSpeech: '形容词',
+                example: '',
+                collocations: ''
+            },
+            {
+                chinese: '思想',
+                pinyin: 'sīxiǎng',
+                translation: 'мысль; мышление; идеология',
+                partOfSpeech: '名词',
+                example: '',
+                collocations: ''
+            },
+            {
+                chinese: '反省',
+                pinyin: 'fǎnxǐng',
+                translation: 'самоанализ, саморефлексия; анализировать свои ошибки',
+                partOfSpeech: '动词 / 名词',
+                example: '',
+                collocations: ''
+            },
+            {
+                chinese: '主动',
+                pinyin: 'zhǔdòng',
+                translation: 'по собственной инициативе, добровольно',
+                partOfSpeech: '形容词 / 副词',
+                example: '',
+                collocations: ''
+            },
+            {
+                chinese: '体会',
+                pinyin: 'tǐhuì',
+                translation: 'постигать на опыте, прочувствовать; понять из практики',
+                partOfSpeech: '动词 / 名词',
+                example: '',
+                collocations: ''
+            },
+            {
+                chinese: '时时',
+                pinyin: 'shíshí',
+                translation: 'часто, постоянно, всегда',
+                partOfSpeech: '副词',
+                example: '',
+                collocations: ''
+            },
+            {
+                chinese: '深感',
+                pinyin: 'shēngǎn',
+                translation: 'глубоко чувствовать; испытывать глубокое ощущение/переживание',
+                partOfSpeech: '动词',
+                example: '我深感遗憾他去世了。我深感遗憾，请原谅我。',
+                collocations: ''
+            },
+            {
+                chinese: '据说',
+                pinyin: 'jùshuō',
+                translation: 'говорят, будто; по слухам',
+                partOfSpeech: '副词',
+                example: '',
+                collocations: ''
+            },
+            {
+                chinese: '个性',
+                pinyin: 'gèxìng',
+                translation: 'индивидуальность, характер, особенности личности',
+                partOfSpeech: '名词',
+                example: '',
+                collocations: ''
+            },
+            {
+                chinese: '冒险',
+                pinyin: 'màoxiǎn',
+                translation: 'рисковать, идти на риск; риск',
+                partOfSpeech: '动词 / 名词',
+                example: '',
+                collocations: ''
+            },
+            {
+                chinese: '冒险片',
+                pinyin: 'màoxiǎnpiàn',
+                translation: 'приключенческий фильм',
+                partOfSpeech: '名词',
+                example: '',
+                collocations: ''
+            },
+            {
+                chinese: '丛林',
+                pinyin: 'cónglín',
+                translation: 'джунгли, чаща (также переносно: 丛林法则 — закон джунглей)',
+                partOfSpeech: '名词',
+                example: '',
+                collocations: ''
+            },
+            {
+                chinese: '文明',
+                pinyin: 'wénmíng',
+                translation: 'цивилизация; культурность; воспитанность',
+                partOfSpeech: '名词 / 形容词',
+                example: '',
+                collocations: ''
+            },
+            {
+                chinese: '记录',
+                pinyin: 'jìlù',
+                translation: 'запись; протоколировать, фиксировать',
+                partOfSpeech: '名词 / 动词',
+                example: '',
+                collocations: ''
+            },
+            {
+                chinese: '纪录片',
+                pinyin: 'jìlùpiàn',
+                translation: 'документальный фильм',
+                partOfSpeech: '名词',
+                example: '',
+                collocations: ''
+            },
+            {
+                chinese: '雇',
+                pinyin: 'gù',
+                translation: 'нанимать (работников)',
+                partOfSpeech: '动词',
+                example: '小明！这个星期我们要安排招聘会，马经理要雇40来个员工。',
+                collocations: ''
+            },
+            {
+                chinese: '雇人',
+                pinyin: 'gùrén',
+                translation: 'нанимать людей',
+                partOfSpeech: '动词',
+                example: '',
+                collocations: ''
+            },
+            {
+                chinese: '解雇',
+                pinyin: 'jiěgù',
+                translation: 'увольнять (с работы)',
+                partOfSpeech: '动词',
+                example: '',
+                collocations: ''
+            },
+            {
+                chinese: '来',
+                pinyin: 'lái',
+                translation: 'после числительных: приблизительное количество (十来个人 — человек десять, 三十来岁 — около тридцати лет)',
+                partOfSpeech: '后缀',
+                example: '',
+                collocations: ''
+            },
+            {
+                chinese: '批',
+                pinyin: 'pī',
+                translation: 'счётное слово: партия, группа; также «批评» — критиковать',
+                partOfSpeech: '量词 / 动词',
+                example: '',
+                collocations: '一批货, 一批学生'
+            },
+            {
+                chinese: '出色',
+                pinyin: 'chūsè',
+                translation: 'выдающийся, блестящий',
+                partOfSpeech: '形容词',
+                example: '对我来说，这种出色的新品能改变人类的生活。',
+                collocations: '出色的人物, 出色的医生, 出色的成绩, 出色的表现'
+            },
+            {
+                chinese: '搬运',
+                pinyin: 'bānyùn',
+                translation: 'перевозить, транспортировать, переносить',
+                partOfSpeech: '动词',
+                example: '',
+                collocations: ''
+            },
+            {
+                chinese: '搬运工',
+                pinyin: 'bānyùngōng',
+                translation: 'грузчик, разнорабочий (занимающийся переноской)',
+                partOfSpeech: '名词',
+                example: '',
+                collocations: ''
+            },
+            {
+                chinese: '健步如飞',
+                pinyin: 'jiànbù rú fēi',
+                translation: 'идти лёгкой, быстрой походкой; шагать как на крыльях',
+                partOfSpeech: '成语',
+                example: '',
+                collocations: ''
+            },
+            {
+                chinese: '原定',
+                pinyin: 'yuándìng',
+                translation: 'изначально намеченный, как было запланировано',
+                partOfSpeech: '形容词',
+                example: '',
+                collocations: ''
+            },
+            {
+                chinese: '费用',
+                pinyin: 'fèiyòng',
+                translation: 'расходы, затраты',
+                partOfSpeech: '名词',
+                example: '',
+                collocations: ''
+            },
+            {
+                chinese: '一连',
+                pinyin: 'yìlián',
+                translation: 'подряд, непрерывно',
+                partOfSpeech: '副词',
+                example: '我一连三个月刻苦地学习中文。',
+                collocations: ''
+            },
+            {
+                chinese: '耽误',
+                pinyin: 'dānwu',
+                translation: 'задерживать, откладывать; мешать',
+                partOfSpeech: '动词',
+                example: '',
+                collocations: '耽误工作, 耽误时间, 耽误孩子, 耽误生产, 耽误休息, 耽误约会, 耽误看病'
+            },
+            {
+                chinese: '至于',
+                pinyin: 'zhìyú',
+                translation: 'что касается…, относительно…',
+                partOfSpeech: '介词',
+                example: '',
+                collocations: ''
+            },
+            {
+                chinese: '人物',
+                pinyin: 'rénwù',
+                translation: 'личность, персонаж, фигура (важный человек)',
+                partOfSpeech: '名词',
+                example: '',
+                collocations: ''
+            },
+            {
+                chinese: '得罪',
+                pinyin: 'dézuì',
+                translation: 'обидеть, задеть, оскорбить',
+                partOfSpeech: '动词',
+                example: '我多余的词得罪了父母',
+                collocations: ''
+            },
+            {
+                chinese: '总算',
+                pinyin: 'zǒngsuàn',
+                translation: 'наконец-то (с оттенком облегчения, «слава богу»)',
+                partOfSpeech: '副词',
+                example: '',
+                collocations: ''
+            },
+            {
+                chinese: '搞',
+                pinyin: 'gǎo',
+                translation: 'заниматься, делать (с результатом). Часто: 搞错了 (ошибся), 搞定 (урегулировать), 搞乱 (навести беспорядок)',
+                partOfSpeech: '动词',
+                example: '',
+                collocations: '搞错, 搞成, 搞出来, 搞得准确'
+            },
+            {
+                chinese: '习俗',
+                pinyin: 'xísú',
+                translation: 'обычай, традиция',
+                partOfSpeech: '名词',
+                example: '',
+                collocations: ''
+            },
+            {
+                chinese: '自古',
+                pinyin: 'zìgǔ',
+                translation: 'с древних времён, испокон веков',
+                partOfSpeech: '副词',
+                example: '',
+                collocations: ''
+            },
+            {
+                chinese: '受益',
+                pinyin: 'shòuyì',
+                translation: 'получить пользу, извлечь выгоду',
+                partOfSpeech: '动词',
+                example: '',
+                collocations: ''
+            },
+            {
+                chinese: '终生',
+                pinyin: 'zhōngshēng',
+                translation: 'всю жизнь, до конца жизни',
+                partOfSpeech: '名词 / 副词',
+                example: '',
+                collocations: ''
+            },
+            {
+                chinese: '灵魂',
+                pinyin: 'línghún',
+                translation: 'душа, дух',
+                partOfSpeech: '名词',
+                example: '',
+                collocations: ''
+            },
+            {
+                chinese: '疲劳',
+                pinyin: 'píláo',
+                translation: 'усталость, переутомление',
+                partOfSpeech: '形容词 / 名词',
+                example: '我一边勤奋地学习一边刻苦地上班，感觉真太疲劳了！',
+                collocations: ''
+            },
+            {
+                chinese: '哲理',
+                pinyin: 'zhélǐ',
+                translation: 'философский принцип, философская истина',
+                partOfSpeech: '名词',
+                example: '',
+                collocations: ''
+            },
+            {
+                chinese: '提倡',
+                pinyin: 'tíchàng',
+                translation: 'пропагандировать, поощрять, выступать за',
+                partOfSpeech: '动词',
+                example: '政府提倡节约用水。',
+                collocations: '提倡科学, 提倡戒烟, 提倡对话, 提倡节约, 提倡诚实, 提倡平等'
+            },
+            {
+                chinese: '步骤',
+                pinyin: 'bùzhòu',
+                translation: 'шаг, мера, стадия, этап',
+                partOfSpeech: '名词',
+                example: '',
+                collocations: ''
+            },
+            {
+                chinese: '闭关',
+                pinyin: 'bìguān',
+                translation: 'затворничество (даосская или буддийская практика уединения)',
+                partOfSpeech: '动词 / 名词',
+                example: '',
+                collocations: ''
+            },
+            {
+                chinese: '一律',
+                pinyin: 'yílǜ',
+                translation: 'одинаково, без исключения',
+                partOfSpeech: '副词 / 形容词',
+                example: '',
+                collocations: ''
+            },
+            {
+                chinese: '寂寞',
+                pinyin: 'jìmò',
+                translation: 'одинокий, в тишине и уединении',
+                partOfSpeech: '形容词',
+                example: '',
+                collocations: '寂寞的朋友, 寂寞的年代, 寂寞的感觉, 寂寞的心情'
+            },
+            {
+                chinese: '效率',
+                pinyin: 'xiàolǜ',
+                translation: 'эффективность, продуктивность',
+                partOfSpeech: '名词',
+                example: '',
+                collocations: ''
+            },
+            {
+                chinese: '竞争',
+                pinyin: 'jìngzhēng',
+                translation: 'конкуренция; соперничать, конкурировать',
+                partOfSpeech: '名词 / 动词',
+                example: '现在找工作的竞争很激烈！',
+                collocations: ''
+            },
+            {
+                chinese: '只顾',
+                pinyin: 'zhǐgù',
+                translation: 'думать только о…; заботиться лишь о…',
+                partOfSpeech: '副词 / 动词',
+                example: '老板只顾钱，甚至让生病的人也来上班。',
+                collocations: ''
+            },
+            {
+                chinese: '抬头',
+                pinyin: 'táitóu',
+                translation: 'поднимать голову; (перен.) возвышаться, становиться заметным',
+                partOfSpeech: '动词',
+                example: '将军提醒我们不让敌人抬头。',
+                collocations: ''
+            },
+            {
+                chinese: '激烈',
+                pinyin: 'jīliè',
+                translation: 'интенсивный, яростный, ожесточённый',
+                partOfSpeech: '形容词',
+                example: '现在找工作的竞争很激烈！',
+                collocations: ''
+            },
+            {
+                chinese: '算',
+                pinyin: 'suàn',
+                translation: 'считать, вычислять; считаться',
+                partOfSpeech: '动词',
+                example: '',
+                collocations: '算不清, 算不出, 算得上, 算不了'
+            },
+            {
+                chinese: '大力',
+                pinyin: 'dàlì',
+                translation: 'энергично, решительно, изо всех сил',
+                partOfSpeech: '副词',
+                example: '',
+                collocations: '大力提倡'
+            },
+            {
+                chinese: '积极',
+                pinyin: 'jījí',
+                translation: 'активный, позитивный',
+                partOfSpeech: '形容词 / 副词',
+                example: '',
+                collocations: '积极提倡'
+            },
+            {
+                chinese: '投资',
+                pinyin: 'tóuzī',
+                translation: 'инвестировать; инвестиция',
+                partOfSpeech: '动词 / 名词',
+                example: '',
+                collocations: '长期投资, 纷纷投资, 大胆投资'
+            },
+            {
+                chinese: '演讲',
+                pinyin: 'yǎnjiǎng',
+                translation: 'выступать с речью, лекция, речь',
+                partOfSpeech: '动词 / 名词',
+                example: '',
+                collocations: ''
+            },
+            {
+                chinese: '发言',
+                pinyin: 'fāyán',
+                translation: 'высказываться, выступать (на собрании, конференции)',
+                partOfSpeech: '动词',
+                example: '',
+                collocations: ''
+            },
+            {
+                chinese: '宴会',
+                pinyin: 'yànhuì',
+                translation: 'банкет, торжественный приём',
+                partOfSpeech: '名词',
+                example: '',
+                collocations: ''
+            },
+            {
+                chinese: '嘉宾',
+                pinyin: 'jiābīn',
+                translation: 'почётный гость',
+                partOfSpeech: '名词',
+                example: '',
+                collocations: ''
+            },
+            {
+                chinese: '证件',
+                pinyin: 'zhèngjiàn',
+                translation: 'удостоверение, документ (паспорт, пропуск и т.п.)',
+                partOfSpeech: '名词',
+                example: '',
+                collocations: ''
+            },
+            {
+                chinese: '名片',
+                pinyin: 'míngpiàn',
+                translation: 'визитная карточка',
+                partOfSpeech: '名词',
+                example: '',
+                collocations: ''
+            },
+            {
+                chinese: '嫁',
+                pinyin: 'jià',
+                translation: '(о женщине) выходить замуж',
+                partOfSpeech: '动词',
+                example: '',
+                collocations: ''
+            },
+            {
+                chinese: '娶',
+                pinyin: 'qǔ',
+                translation: '(о мужчине) жениться, брать в жёны',
+                partOfSpeech: '动词',
+                example: '',
+                collocations: ''
+            },
+            {
+                chinese: '分手',
+                pinyin: 'fēnshǒu',
+                translation: 'расстаться, разойтись (о паре)',
+                partOfSpeech: '动词',
+                example: '',
+                collocations: ''
+            },
+            {
+                chinese: '怀孕',
+                pinyin: 'huáiyùn',
+                translation: 'быть беременной',
+                partOfSpeech: '动词',
+                example: '',
+                collocations: ''
+            },
+            {
+                chinese: '吻',
+                pinyin: 'wěn',
+                translation: 'поцелуй; целовать',
+                partOfSpeech: '名词 / 动词',
+                example: '',
+                collocations: ''
+            }
+        ];
+
+        let currentCardIndex = 0;
+        let activeCards = [...cards];
+        let isFlipped = false;
+
+        function updateCard() {
+            const card = activeCards[currentCardIndex];
+            document.getElementById('chinese').textContent = card.chinese;
+            document.getElementById('pinyin').textContent = card.pinyin;
+            document.getElementById('translation').textContent = card.translation;
+            document.getElementById('partOfSpeech').textContent = card.partOfSpeech;
+            
+            const exampleElement = document.getElementById('example');
+            if (card.example) {
+                exampleElement.textContent = card.example;
+                exampleElement.style.display = 'block';
+            } else {
+                exampleElement.style.display = 'none';
+            }
+            
+            const collocationsElement = document.getElementById('collocations');
+            if (card.collocations) {
+                collocationsElement.innerHTML = '<div class="collocations-title">常用搭配:</div>' + card.collocations;
+                collocationsElement.style.display = 'block';
+            } else {
+                collocationsElement.style.display = 'none';
+            }
+            
+            updateCounter();
+            updateNavigation();
+            
+            const flashcard = document.getElementById('flashcard');
+            flashcard.classList.remove('flipped');
+            isFlipped = false;
+        }
+
+        function updateCounter() {
+            document.getElementById('counter').textContent = 
+                `Карточка ${currentCardIndex + 1} из ${activeCards.length}`;
+        }
+
+        function updateNavigation() {
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtn = document.getElementById('nextBtn');
+            
+            prevBtn.disabled = currentCardIndex === 0;
+            nextBtn.disabled = currentCardIndex === activeCards.length - 1;
+        }
+
+        function flipCard() {
+            const flashcard = document.getElementById('flashcard');
+            flashcard.classList.toggle('flipped');
+            isFlipped = !isFlipped;
+        }
+
+        function nextCard() {
+            if (currentCardIndex < activeCards.length - 1) {
+                currentCardIndex++;
+                updateCard();
+            }
+        }
+
+        function previousCard() {
+            if (currentCardIndex > 0) {
+                currentCardIndex--;
+                updateCard();
+            }
+        }
+
+        function markAsLearned() {
+            if (activeCards.length === 1) {
+                showCongratulations();
+                return;
+            }
+
+            activeCards.splice(currentCardIndex, 1);
+            
+            if (currentCardIndex >= activeCards.length) {
+                currentCardIndex = activeCards.length - 1;
+            }
+            
+            if (activeCards.length === 0) {
+                showCongratulations();
+            } else {
+                updateCard();
+            }
+        }
+
+        function shuffleCards() {
+            for (let i = activeCards.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [activeCards[i], activeCards[j]] = [activeCards[j], activeCards[i]];
+            }
+            currentCardIndex = 0;
+            updateCard();
+        }
+
+        function resetCards() {
+            activeCards = [...cards];
+            currentCardIndex = 0;
+            document.getElementById('congratulations').classList.remove('show');
+            updateCard();
+        }
+
+        function showCongratulations() {
+            document.getElementById('congratulations').classList.add('show');
+        }
+
+        // Инициализация
+        updateCard();
+
+        // Event listeners
+        document.getElementById('flashcard').addEventListener('click', flipCard);
+        document.getElementById('prevBtn').addEventListener('click', previousCard);
+        document.getElementById('nextBtn').addEventListener('click', nextCard);
+        document.getElementById('learnedBtn').addEventListener('click', markAsLearned);
+        document.getElementById('shuffleBtn').addEventListener('click', shuffleCards);
+        document.getElementById('resetBtn').addEventListener('click', resetCards);
+        document.getElementById('restartBtn').addEventListener('click', resetCards);
+
+        // Клавиатурные сокращения
+        document.addEventListener('keydown', function(e) {
+            switch(e.key) {
+                case ' ':
+                case 'Enter':
+                    e.preventDefault();
+                    flipCard();
+                    break;
+                case 'ArrowLeft':
+                    previousCard();
+                    break;
+                case 'ArrowRight':
+                    nextCard();
+                    break;
+                case 'r':
+                case 'R':
+                    markAsLearned();
+                    break;
+                case 's':
+                case 'S':
+                    shuffleCards();
+                    break;
+            }
+        });
+    </script>
+</body>
+</html>
