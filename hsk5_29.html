@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Китайские флэшкарточки</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 600px;
+            width: 100%;
+        }
+
+        .counter {
+            text-align: center;
+            color: white;
+            font-size: 18px;
+            margin-bottom: 20px;
+            font-weight: 500;
+        }
+
+        .card-container {
+            perspective: 1000px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            width: 100%;
+            height: 500px;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.6s;
+            cursor: pointer;
+        }
+
+        .card.flipped {
+            transform: rotateY(180deg);
+        }
+
+        .card-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 40px;
+        }
+
+        .card-front {
+            background: white;
+        }
+
+        .card-front .character {
+            font-size: 120px;
+            color: #333;
+            font-weight: 500;
+            font-family: "STKaiti", "KaiTi", "SimSun", "Microsoft YaHei", serif;
+        }
+
+        .card-back {
+            background: #2563eb;
+            transform: rotateY(180deg);
+            flex-direction: column;
+            text-align: center;
+            gap: 10px;
+            padding: 30px;
+            overflow-y: auto;
+        }
+
+        .card-back .pinyin {
+            font-size: 28px;
+            color: #fbbf24;
+            font-weight: 500;
+        }
+
+        .card-back .pos {
+            font-size: 16px;
+            color: #fbbf24;
+            opacity: 0.9;
+            font-style: italic;
+        }
+
+        .card-back .translation {
+            font-size: 20px;
+            color: #fbbf24;
+            line-height: 1.4;
+        }
+
+        .card-back .grammar {
+            font-size: 15px;
+            color: #fbbf24;
+            opacity: 0.85;
+            font-style: italic;
+            margin-top: 8px;
+            padding-top: 8px;
+            border-top: 1px solid rgba(251, 191, 36, 0.3);
+        }
+
+        .card-back .example {
+            font-size: 20px;
+            color: #fbbf24;
+            opacity: 0.8;
+            margin-top: 6px;
+            line-height: 1.4;
+            white-space: pre-line;
+        }
+
+        .card-back .collocations {
+            font-size: 18px;
+            color: #fbbf24;
+            opacity: 0.75;
+            margin-top: 6px;
+            line-height: 1.4;
+            font-style: italic;
+        }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            flex: 1;
+            min-width: 120px;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            color: white;
+        }
+
+        .btn-primary {
+            background: #2563eb;
+        }
+
+        .btn-primary:hover {
+            background: #1d4ed8;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(37, 99, 235, 0.4);
+        }
+
+        .btn-success {
+            background: #10b981;
+        }
+
+        .btn-success:hover {
+            background: #059669;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(16, 185, 129, 0.4);
+        }
+
+        .btn-secondary {
+            background: #6b7280;
+        }
+
+        .btn-secondary:hover {
+            background: #4b5563;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(107, 114, 128, 0.4);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .navigation {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .nav-btn {
+            padding: 12px 30px;
+            background: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            color: #667eea;
+        }
+
+        .nav-btn:hover {
+            background: #f3f4f6;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .nav-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .completion-screen {
+            display: none;
+            text-align: center;
+            color: white;
+            padding: 40px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+        }
+
+        .completion-screen.active {
+            display: block;
+        }
+
+        .completion-screen h1 {
+            font-size: 48px;
+            margin-bottom: 20px;
+        }
+
+        .completion-screen p {
+            font-size: 24px;
+            margin-bottom: 30px;
+        }
+
+        .completion-screen .emoji {
+            font-size: 80px;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 600px) {
+            .card {
+                height: 350px;
+            }
+
+            .card-front .character {
+                font-size: 80px;
+            }
+
+            .card-back .pinyin {
+                font-size: 24px;
+            }
+
+            .card-back .translation {
+                font-size: 18px;
+            }
+
+            .btn {
+                min-width: 100px;
+                padding: 10px 16px;
+                font-size: 14px;
+            }
+
+            .nav-btn {
+                padding: 10px 20px;
+                font-size: 14px;
+            }
+
+            .completion-screen h1 {
+                font-size: 36px;
+            }
+
+            .completion-screen p {
+                font-size: 18px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div id="flashcards" class="flashcards-active">
+            <div class="counter" id="counter">Карточка 1 из 18</div>
+            
+            <div class="card-container">
+                <div class="card" id="card">
+                    <div class="card-face card-front">
+                        <div class="character" id="character">培养</div>
+                    </div>
+                    <div class="card-face card-back">
+                        <div class="pinyin" id="pinyin">péiyǎng</div>
+                        <div class="pos" id="pos">глагол</div>
+                        <div class="translation" id="translation">воспитывать; развивать; взращивать (навыки, кадры и т. п.)</div>
+                        <div class="collocations" id="collocations"></div>
+                        <div class="grammar" id="grammar"></div>
+                        <div class="example" id="example"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="controls">
+                <button class="btn btn-secondary" onclick="shuffleCards()">🔀 Перемешать</button>
+                <button class="btn btn-success" onclick="removeCard()">✓ Запомнил</button>
+            </div>
+
+            <div class="navigation">
+                <button class="nav-btn" id="prevBtn" onclick="prevCard()">← Назад</button>
+                <button class="nav-btn" id="nextBtn" onclick="nextCard()">Вперед →</button>
+            </div>
+        </div>
+
+        <div class="completion-screen" id="completionScreen">
+            <div class="emoji">🎉</div>
+            <h1>Поздравляем!</h1>
+            <p>Вы изучили все карточки!</p>
+            <button class="btn btn-primary" onclick="resetCards()">Начать заново</button>
+        </div>
+    </div>
+
+    <script>
+        const cardsData = [
+            { char: "培养", pinyin: "péiyǎng", pos: "глагол", trans: "воспитывать; развивать; взращивать (навыки, кадры и т. п.)", collocations: "培养能力 / 兴趣 / 感情 / 爱好" },
+            { char: "对手", pinyin: "duìshǒu", pos: "существительное", trans: "противник; соперник; конкурент" },
+            { char: "公寓", pinyin: "gōngyù", pos: "существительное", trans: "многоквартирный дом; апартаменты; общежитие", collocations: "一套 / 一间 / 一所 公寓" },
+            { char: "文具", pinyin: "wénjù", pos: "существительное", trans: "письменные принадлежности; канцелярия" },
+            { char: "电池", pinyin: "diànchí", pos: "существительное", trans: "батарейка; аккумулятор", collocations: "一节 / 一块 电池" },
+            { char: "日用品", pinyin: "rìyòngpǐn", pos: "существительное", trans: "предметы повседневного пользования; товары первой необходимости" },
+            { char: "利润", pinyin: "lìrùn", pos: "существительное", trans: "прибыль; доход" },
+            { char: "薄利", pinyin: "bólì", pos: "существительное", trans: "небольшая прибыль; минимальная наценка" },
+            { char: "诚信", pinyin: "chéngxìn", pos: "существительное", trans: "честность и надёжность; добросовестность" },
+            { char: "媒体", pinyin: "méitǐ", pos: "существительное", trans: "средства массовой информации (СМИ)" },
+            { char: "多媒体", pinyin: "duōméitǐ", pos: "существительное", trans: "мультимедиа" },
+            { char: "对象", pinyin: "duìxiàng", pos: "существительное", trans: "объект; цель; партнёр (в отношениях или в работе)" },
+            { char: "营业", pinyin: "yíngyè", pos: "глагол", trans: "вести бизнес; заниматься торговлей; работать (о заведении)" },
+            { char: "额", pinyin: "é", pos: "существительное", trans: "установленное количество; лимит; объём" },
+            { char: "额头", pinyin: "étóu", pos: "существительное", trans: "лоб" },
+            { char: "红火", pinyin: "hónghuo", pos: "прилагательное", trans: "процветающий; успешный; оживлённый (о бизнесе или атмосфере)" },
+            { char: "不如", pinyin: "bùrú", pos: "глагол", trans: "уступать; не сравниться с; хуже, чем", grammar: "A + 不如 + B = A 比不上 B", example: "白天的八达岭长城不如晚上的，那我们就晚上六点去吧。\n今天阳光真好，在房间睡觉不如阳台睡。" },
+            { char: "干脆", pinyin: "gāncuì", pos: "наречие", trans: "прямо; откровенно; проще говоря; решительно", grammar: "干脆 + 动词 = 果断、痛快地做", example: "假如没有意思，你干脆放弃吧！\n这件事你已经考虑了一个月了，你干脆给我答案吧！" },
+            { char: "委托", pinyin: "wěituō", pos: "глагол", trans: "поручать; доверять выполнение задачи; делегировать" },
+            { char: "销售", pinyin: "xiāoshòu", pos: "глагол", trans: "продавать; реализовывать; сбыт" },
+            { char: "挤", pinyin: "jǐ", pos: "глагол", trans: "давить, сжимать; толпиться; тесниться; толкать(ся); вытеснять; отталкивать, исключать" },
+            { char: "挤出", pinyin: "jǐchū", pos: "глагол", trans: "выдавливать; выделять (время, средства и т. п.)" },
+            { char: "垮", pinyin: "kuǎ", pos: "глагол", trans: "рухнуть; обвалиться; потерпеть крах" },
+            { char: "挤垮", pinyin: "jǐkuǎ", pos: "глагол", trans: "вытеснить с рынка; задавить конкуренцией; довести до краха" },
+            { char: "建议", pinyin: "jiànyì", pos: "глагол/существительное", trans: "советовать; рекомендация; предлагать (совет)" },
+            { char: "垄断", pinyin: "lǒngduàn", pos: "глагол/существительное", trans: "монополизировать; монополия" },
+            { char: "反垄断法", pinyin: "fǎn lǒngduàn fǎ", pos: "существительное", trans: "антимонопольный закон" },
+            { char: "倒闭", pinyin: "dǎobì", pos: "глагол", trans: "обанкротиться; закрыться (о предприятии)" },
+            { char: "营销", pinyin: "yíngxiāo", pos: "существительное", trans: "маркетинг; продвижение и сбыт" },
+            { char: "市场营销", pinyin: "shìchǎng yíngxiāo", pos: "существительное", trans: "рыночный маркетинг" },
+            { char: "热心", pinyin: "rèxīn", pos: "прилагательное", trans: "с энтузиазмом; усердный; отзывчивый" },
+            { char: "资金", pinyin: "zījīn", pos: "существительное", trans: "капитал; денежные средства; фонды", collocations: "资金不足 / 紧张" },
+            { char: "傻", pinyin: "shǎ", pos: "прилагательное", trans: "глупый; наивный" },
+            { char: "倒霉", pinyin: "dǎoméi", pos: "прилагательное", trans: "быть неудачливым; не везти" },
+            { char: "生态", pinyin: "shēngtài", pos: "существительное", trans: "экология; экосистема" },
+            { char: "领域", pinyin: "lǐngyù", pos: "существительное", trans: "сфера, область (науки, деятельности, интересов)" },
+            { char: "适当", pinyin: "shìdàng", pos: "прилагательное", trans: "подходящий, уместный, надлежащий; соответствующий" },
+            { char: "促使", pinyin: "cùshǐ", pos: "глагол", trans: "побуждать, заставлять, способствовать тому, чтобы…", collocations: "促使他成长 / 自己改正缺点 / 地努力学习" },
+            { char: "生长", pinyin: "shēngzhǎng", pos: "глагол", trans: "расти, развиваться (о растениях, животных, детях)" },
+            { char: "阻碍", pinyin: "zǔ'ài", pos: "глагол", trans: "препятствовать, мешать, тормозить (процесс, развитие)" },
+            { char: "妨碍", pinyin: "fáng'ài", pos: "глагол", trans: "мешать, затруднять (действие, работу, человека); создавать помехи", collocations: "妨碍交通 / 你 / 别人学习" },
+            { char: "促进", pinyin: "cùjìn", pos: "глагол", trans: "способствовать, продвигать, стимулировать (развитие, процесс)", collocations: "促进经济发展 / 两国友谊 / 科技进步" },
+            { char: "利益", pinyin: "lìyì", pos: "существительное", trans: "выгода, интерес, польза" },
+            { char: "采取措施", pinyin: "cǎi qǔ cuò shī", pos: "фраза", trans: "принять меры" },
+            { char: "阻碍", pinyin: "zǔ'ài", pos: "глагол", trans: "препятствовать, мешать, тормозить (процесс, развитие)" },
+            { char: "促使", pinyin: "cùshǐ", pos: "глагол", trans: "побуждать, заставлять, способствовать тому, чтобы…" },
+            { char: "合理", pinyin: "hélǐ", pos: "прилагательное", trans: "разумный, обоснованный, соответствующий логике или нормам", collocations: "价格 / 收费 / 方法 / 建议 / 结构 / 设计 合理" },
+            { char: "万一", pinyin: "wànyī", pos: "наречие", trans: "на случай если; вдруг; что если (выражает предположение, возможный риск)", grammar: "表示小概率假设；以防万一 = 'на всякий случай'", example: "我们还是早点出发吧，万一路上可能有堵车。\n我总是带着一把雨伞，以防万一。" },
+            { char: "维持", pinyin: "wéichí", pos: "глагол", trans: "поддерживать, сохранять (состояние, порядок, отношения)" },
+            { char: "饱和", pinyin: "bǎohé", pos: "прилагательное", trans: "насыщенный, переполненный (о рынке, среде, воздухе и т.п.)" },
+            { char: "不见得", pinyin: "bú jiàn dé", pos: "фраза", trans: "не обязательно; вовсе не факт, что..." },
+            { char: "插足", pinyin: "chāzú", pos: "глагол", trans: "вмешиваться, влезать (в чужие дела или отношения)" },
+            { char: "优中选优", pinyin: "yōu zhōng xuǎn yōu", pos: "фраза", trans: "выбирать лучшее из хорошего; отбирать самое лучшее" },
+            { char: "购物环境", pinyin: "gòuwù huánjìng", pos: "существительное", trans: "среда покупок, условия и атмосфера для клиентов" },
+            { char: "发票", pinyin: "fāpiào", pos: "существительное", trans: "счёт, чек, квитанция (официальный документ об оплате)" },
+            { char: "收据", pinyin: "shōujù", pos: "существительное", trans: "расписка, квитанция, чек (о получении денег)" },
+            { char: "支票", pinyin: "zhīpiào", pos: "существительное", trans: "банковский чек" },
+            { char: "欠", pinyin: "qiàn", pos: "глагол", trans: "быть должным, задолжать" },
+            { char: "税", pinyin: "shuì", pos: "существительное", trans: "налог" },
+            { char: "市场", pinyin: "shìchǎng", pos: "существительное", trans: "рынок" },
+            { char: "执照", pinyin: "zhízhào", pos: "существительное", trans: "лицензия, разрешение" },
+            { char: "柜台", pinyin: "guìtái", pos: "существительное", trans: "прилавок, стойка" },
+            { char: "商品", pinyin: "shāngpǐn", pos: "существительное", trans: "товар, продукция" },
+            { char: "优惠", pinyin: "yōuhuì", pos: "существительное", trans: "льгота, скидка, привилегия" },
+            { char: "讨价还价", pinyin: "tǎojià-huánjià", pos: "фраза", trans: "торговаться" },
+            { char: "兑换", pinyin: "duìhuàn", pos: "глагол", trans: "обменивать (деньги, валюту)" },
+            { char: "投资", pinyin: "tóuzī", pos: "глагол/существительное", trans: "инвестировать, инвестиция" },
+            { char: "分配", pinyin: "fēnpèi", pos: "глагол/существительное", trans: "распределять, распределение" }
+        ];
+
+        let cards = [...cardsData];
+        let currentIndex = 0;
+        const card = document.getElementById('card');
+
+        card.addEventListener('click', () => {
+            card.classList.toggle('flipped');
+        });
+
+        function updateCard() {
+            if (cards.length === 0) {
+                showCompletion();
+                return;
+            }
+
+            const current = cards[currentIndex];
+            document.getElementById('character').textContent = current.char;
+            document.getElementById('pinyin').textContent = current.pinyin;
+            document.getElementById('pos').textContent = current.pos;
+            document.getElementById('translation').textContent = current.trans;
+            
+            const collocationsEl = document.getElementById('collocations');
+            if (current.collocations) {
+                collocationsEl.textContent = current.collocations;
+                collocationsEl.style.display = 'block';
+            } else {
+                collocationsEl.style.display = 'none';
+            }
+            
+            const grammarEl = document.getElementById('grammar');
+            if (current.grammar) {
+                grammarEl.textContent = current.grammar;
+                grammarEl.style.display = 'block';
+            } else {
+                grammarEl.style.display = 'none';
+            }
+            
+            const exampleEl = document.getElementById('example');
+            if (current.example) {
+                exampleEl.textContent = current.example;
+                exampleEl.style.display = 'block';
+            } else {
+                exampleEl.style.display = 'none';
+            }
+            
+            document.getElementById('counter').textContent = `Карточка ${currentIndex + 1} из ${cards.length}`;
+            
+            card.classList.remove('flipped');
+            updateButtons();
+        }
+
+        function updateButtons() {
+            document.getElementById('prevBtn').disabled = currentIndex === 0;
+            document.getElementById('nextBtn').disabled = currentIndex === cards.length - 1;
+        }
+
+        function nextCard() {
+            if (currentIndex < cards.length - 1) {
+                currentIndex++;
+                updateCard();
+            }
+        }
+
+        function prevCard() {
+            if (currentIndex > 0) {
+                currentIndex--;
+                updateCard();
+            }
+        }
+
+        function shuffleCards() {
+            for (let i = cards.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [cards[i], cards[j]] = [cards[j], cards[i]];
+            }
+            currentIndex = 0;
+            updateCard();
+        }
+
+        function removeCard() {
+            if (cards.length === 0) return;
+            
+            cards.splice(currentIndex, 1);
+            
+            if (cards.length === 0) {
+                showCompletion();
+                return;
+            }
+            
+            if (currentIndex >= cards.length) {
+                currentIndex = cards.length - 1;
+            }
+            
+            updateCard();
+        }
+
+        function showCompletion() {
+            document.getElementById('flashcards').style.display = 'none';
+            document.getElementById('completionScreen').classList.add('active');
+        }
+
+        function resetCards() {
+            cards = [...cardsData];
+            currentIndex = 0;
+            document.getElementById('flashcards').style.display = 'block';
+            document.getElementById('completionScreen').classList.remove('active');
+            updateCard();
+        }
+
+        updateCard();
+    </script>
+</body>
+</html>
