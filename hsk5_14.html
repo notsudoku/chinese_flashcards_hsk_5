@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Китайские флэшкарточки</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 600px;
+            width: 100%;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: white;
+        }
+
+        .counter {
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+
+        .card-container {
+            perspective: 1000px;
+            height: 400px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.6s;
+            cursor: pointer;
+        }
+
+        .card.flipped {
+            transform: rotateY(180deg);
+        }
+
+        .card-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            border-radius: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .card-front {
+            background: white;
+        }
+
+        .card-front .character {
+            font-size: 120px;
+            color: #000000;
+            font-weight: bold;
+            font-family: 'KaiTi', 'SimSun', 'Microsoft YaHei', serif;
+        }
+
+        .card-back {
+            background: #2563eb;
+            transform: rotateY(180deg);
+            padding: 40px;
+        }
+
+        .card-back-content {
+            text-align: center;
+            color: #fbbf24;
+        }
+
+        .pinyin {
+            font-size: 32px;
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+
+        .part-of-speech {
+            font-size: 18px;
+            margin-bottom: 20px;
+            opacity: 0.9;
+        }
+
+        .translation {
+            font-size: 24px;
+            line-height: 1.4;
+        }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            font-size: 16px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn-primary {
+            background: white;
+            color: #667eea;
+        }
+
+        .btn-success {
+            background: #10b981;
+            color: white;
+        }
+
+        .btn-warning {
+            background: #f59e0b;
+            color: white;
+        }
+
+        .navigation {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .completion-screen {
+            display: none;
+            text-align: center;
+            color: white;
+            animation: fadeIn 0.5s;
+        }
+
+        .completion-screen.active {
+            display: block;
+        }
+
+        .completion-screen h1 {
+            font-size: 48px;
+            margin-bottom: 20px;
+        }
+
+        .completion-screen p {
+            font-size: 24px;
+            margin-bottom: 30px;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        @media (max-width: 600px) {
+            .card-front .character {
+                font-size: 80px;
+            }
+
+            .pinyin {
+                font-size: 24px;
+            }
+
+            .translation {
+                font-size: 18px;
+            }
+
+            .card-container {
+                height: 350px;
+            }
+
+            .btn {
+                padding: 10px 20px;
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="counter" id="counter">Карточка 1 из 60</div>
+        </div>
+
+        <div id="main-content">
+            <div class="card-container">
+                <div class="card" id="card" onclick="flipCard()">
+                    <div class="card-face card-front">
+                        <div class="character" id="character">四合院</div>
+                    </div>
+                    <div class="card-face card-back">
+                        <div class="card-back-content">
+                            <div class="pinyin" id="pinyin">sìhéyuàn</div>
+                            <div class="part-of-speech" id="partOfSpeech">сущ.</div>
+                            <div class="translation" id="translation">сыхэюань, традиционный тип жилой застройки</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="controls">
+                <button class="btn btn-warning" onclick="shuffleCards()">🔀 Перемешать</button>
+                <button class="btn btn-success" onclick="markAsLearned()">✓ Запомнил</button>
+            </div>
+
+            <div class="navigation">
+                <button class="btn btn-primary" onclick="previousCard()">← Назад</button>
+                <button class="btn btn-primary" onclick="nextCard()">Вперед →</button>
+            </div>
+        </div>
+
+        <div class="completion-screen" id="completion">
+            <h1>🎉 Поздравляем!</h1>
+            <p>Вы изучили все карточки!</p>
+            <button class="btn btn-primary" onclick="resetCards()">Начать заново</button>
+        </div>
+    </div>
+
+    <script>
+        const cardsData = [
+            { character: '四合院', pinyin: 'sìhéyuàn', pos: 'сущ.', translation: 'сыхэюань, традиционный тип жилой застройки' },
+            { character: '民居', pinyin: 'mínjū', pos: 'сущ.', translation: 'традиционное жильё (гражданская архитектура)' },
+            { character: '组合', pinyin: 'zǔhé', pos: 'глаг.', translation: 'объединять, компоновать (часто с 起来 / 在一起)' },
+            { character: '建筑', pinyin: 'jiànzhù', pos: 'сущ./глаг.', translation: 'здание, архитектура; строить' },
+            { character: '形式', pinyin: 'xíngshì', pos: 'сущ.', translation: 'форма, формат (не обязательно формальность)' },
+            { character: '所谓', pinyin: 'suǒwèi', pos: 'прил.', translation: 'так называемый (语法结构：所谓的"X"就是...)' },
+            { character: '方', pinyin: 'fāng', pos: 'сущ.', translation: 'сторона' },
+            { character: '广泛', pinyin: 'guǎngfàn', pos: 'прил.', translation: 'широкий, обширный (广泛地调查 / 应用 / 分布)' },
+            { character: '样式', pinyin: 'yàngshì', pos: 'сущ.', translation: 'стиль, фасон, форма' },
+            { character: '代表性', pinyin: 'dàibiǎoxìng', pos: 'сущ./прил.', translation: 'репрезентативность; типичный, характерный' },
+            { character: '规模', pinyin: 'guīmó', pos: 'сущ.', translation: 'масштаб, размер (大规模、小规模)' },
+            { character: '通常', pinyin: 'tōngcháng', pos: 'нареч.', translation: 'обычно, как правило' },
+            { character: '并列', pinyin: 'bìngliè', pos: 'глаг.', translation: 'стоять рядом, наравне; параллельно' },
+            { character: '组成', pinyin: 'zǔchéng', pos: 'глаг.', translation: 'составлять, состоять из' },
+            { character: '长辈', pinyin: 'zhǎngbèi', pos: 'сущ.', translation: 'старшие (в семье, по возрасту)' },
+            { character: '具备', pinyin: 'jùbèi', pos: 'глаг.', translation: 'обладать, иметь (具备功能 / 条件)' },
+            { character: '充分', pinyin: 'chōngfèn', pos: 'прил.', translation: 'полноценный, достаточный (充分准备 / 充分理解)' },
+            { character: '日常', pinyin: 'rìcháng', pos: 'прил.', translation: 'повседневный (日常生活 / 工作 / 用语)' },
+            { character: '起居', pinyin: 'qǐjū', pos: 'сущ.', translation: 'распорядок дня, бытовая жизнь' },
+            { character: '接待', pinyin: 'jiēdài', pos: 'глаг.', translation: 'приём (гостей, делегаций), принимать' },
+            { character: '功能', pinyin: 'gōngnéng', pos: 'сущ.', translation: 'функция, возможность (有功能 / 具备功能)' },
+            { character: '厢房', pinyin: 'xiāngfáng', pos: 'сущ.', translation: 'флигель (восточный/западный в 四合院)' },
+            { character: '走廊', pinyin: 'zǒuláng', pos: 'сущ.', translation: 'коридор, проход' },
+            { character: '空间', pinyin: 'kōngjiān', pos: 'сущ.', translation: 'пространство (абстрактное или физическое)' },
+            { character: '种', pinyin: 'zhòng', pos: 'глаг.', translation: 'сажать, выращивать (种花 / 种树)' },
+            { character: '竹子', pinyin: 'zhúzi', pos: 'сущ.', translation: 'бамбук' },
+            { character: '则', pinyin: 'zé', pos: 'союз', translation: 'союз для противопоставления (前者..., 后者则...)' },
+            { character: '金鱼', pinyin: 'jīnyú', pos: 'сущ.', translation: 'золотая рыбка' },
+            { character: '创造', pinyin: 'chuàngzào', pos: 'глаг.', translation: 'создавать, творить (创造机会 / 生活 / 历史)' },
+            { character: '情趣', pinyin: 'qíngqù', pos: 'сущ.', translation: 'вкус к жизни, интерес, эстетика' },
+            { character: '因而', pinyin: 'yīn\'ér', pos: 'союз', translation: 'поэтому, следовательно' },
+            { character: '为...所...', pinyin: 'wèi...suǒ...', pos: 'конструкция', translation: 'пассивная конструкция: 他为大家所喜爱。' },
+            { character: '关闭', pinyin: 'guānbì', pos: 'глаг.', translation: 'закрыть (в официальном, техническом контексте)' },
+            { character: '封闭', pinyin: 'fēngbì', pos: 'прил./глаг.', translation: 'закрытый, изолированный (封闭社区)' },
+            { character: '打交道', pinyin: 'dǎjiāodao', pos: 'глаг.', translation: 'иметь дело с, контактировать, общаться' },
+            { character: '日子', pinyin: 'rìzi', pos: 'сущ.', translation: 'жизнь, дни (幸福的日子 / 困难的日子)' },
+            { character: '令', pinyin: 'lìng', pos: 'глаг.', translation: 'заставить, привести к (较正式)' },
+            { character: '亲切', pinyin: 'qīnqiè', pos: 'прил.', translation: 'тёплый, близкий, сердечный (об атмосфере или тоне)' },
+            { character: '起', pinyin: 'qǐ', pos: 'часть речи', translation: 'используется в趋向补语: 拿起 / 站起来 / 想起' },
+            { character: '劳动', pinyin: 'láodòng', pos: 'сущ./глаг.', translation: 'труд, трудиться' },
+            { character: '人民', pinyin: 'rénmín', pos: 'сущ.', translation: 'народ' },
+            { character: '矛盾', pinyin: 'máodùn', pos: 'сущ.', translation: 'противоречие, конфликт (产生 / 有 / 闹矛盾)' },
+            { character: '浓', pinyin: 'nóng', pos: 'прил.', translation: 'густой, плотный (雾很浓 / 感情很浓)' },
+            { character: '互帮互助', pinyin: 'hùbāng hùzhù', pos: 'фразеол.', translation: 'взаимопомощь, поддержка' },
+            { character: '屋子', pinyin: 'wūzi', pos: 'сущ.', translation: 'комната, домик' },
+            { character: '卧室', pinyin: 'wòshì', pos: 'сущ.', translation: 'спальня' },
+            { character: '阳台', pinyin: 'yángtái', pos: 'сущ.', translation: 'балкон' },
+            { character: '台阶', pinyin: 'táijiē', pos: 'сущ.', translation: 'лестница, ступени' },
+            { character: '墙', pinyin: 'qiáng', pos: 'сущ.', translation: 'стена' },
+            { character: '玻璃', pinyin: 'bōli', pos: 'сущ.', translation: 'стекло' },
+            { character: '宿舍', pinyin: 'sùshè', pos: 'сущ.', translation: 'общежитие' },
+            { character: '公寓', pinyin: 'gōngyù', pos: 'сущ.', translation: 'квартира, многоквартирный дом' },
+            { character: '单元', pinyin: 'dānyuán', pos: 'сущ.', translation: 'подъезд, секция (в жилом комплексе)' },
+            { character: '隔壁', pinyin: 'gébì', pos: 'сущ.', translation: 'по соседству, соседний дом или квартира' },
+            { character: '大厦', pinyin: 'dàshà', pos: 'сущ.', translation: 'здание (высотное, офисное)' },
+            { character: '广场', pinyin: 'guǎngchǎng', pos: 'сущ.', translation: 'площадь (а не торговый центр!)' },
+            { character: '通常 VS 常常', pinyin: 'tōngcháng VS chángcháng', pos: 'примечание', translation: '通常 — логично, как правило; 常常 — часто, регулярно (о личных привычках)' },
+            { character: '春节时，人们通常吃饺子。', pinyin: 'Chūnjié shí, rénmen tōngcháng chī jiǎozi.', pos: 'пример', translation: 'На Новый год люди обычно едят пельмени.' },
+            { character: '我周末常常去图书馆。', pinyin: 'Wǒ zhōumò chángcháng qù túshūguǎn.', pos: 'пример', translation: 'Я часто хожу в библиотеку по выходным.' },
+            { character: '常常', pinyin: 'chángcháng', pos: 'нареч.', translation: 'часто, регулярно (о личных привычках и действиях)' }
+        ];
+
+        let currentCards = [...cardsData];
+        let currentIndex = 0;
+
+        function updateCard() {
+            if (currentCards.length === 0) {
+                document.getElementById('main-content').style.display = 'none';
+                document.getElementById('completion').classList.add('active');
+                return;
+            }
+
+            const card = currentCards[currentIndex];
+            document.getElementById('character').textContent = card.character;
+            document.getElementById('pinyin').textContent = card.pinyin;
+            document.getElementById('partOfSpeech').textContent = card.pos;
+            document.getElementById('translation').textContent = card.translation;
+            document.getElementById('counter').textContent = `Карточка ${currentIndex + 1} из ${currentCards.length}`;
+            
+            const cardElement = document.getElementById('card');
+            cardElement.classList.remove('flipped');
+        }
+
+        function flipCard() {
+            document.getElementById('card').classList.toggle('flipped');
+        }
+
+        function nextCard() {
+            if (currentIndex < currentCards.length - 1) {
+                currentIndex++;
+                updateCard();
+            }
+        }
+
+        function previousCard() {
+            if (currentIndex > 0) {
+                currentIndex--;
+                updateCard();
+            }
+        }
+
+        function markAsLearned() {
+            currentCards.splice(currentIndex, 1);
+            if (currentIndex >= currentCards.length && currentIndex > 0) {
+                currentIndex--;
+            }
+            updateCard();
+        }
+
+        function shuffleCards() {
+            for (let i = currentCards.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [currentCards[i], currentCards[j]] = [currentCards[j], currentCards[i]];
+            }
+            currentIndex = 0;
+            updateCard();
+        }
+
+        function resetCards() {
+            currentCards = [...cardsData];
+            currentIndex = 0;
+            document.getElementById('main-content').style.display = 'block';
+            document.getElementById('completion').classList.remove('active');
+            updateCard();
+        }
+
+        updateCard();
+    </script>
+</body>
+</html>
