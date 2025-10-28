@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Китайские флэшкарточки</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 600px;
+            width: 100%;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 2em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .counter {
+            font-size: 1.2em;
+            margin-top: 10px;
+            opacity: 0.9;
+        }
+
+        .card-container {
+            perspective: 1000px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            width: 100%;
+            height: 400px;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.6s;
+            cursor: pointer;
+        }
+
+        .card.flipped {
+            transform: rotateY(180deg);
+        }
+
+        .card-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            border-radius: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 40px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .card-front {
+            background: white;
+        }
+
+        .card-back {
+            background: #2563eb;
+            transform: rotateY(180deg);
+        }
+
+        .hanzi {
+            font-size: 6em;
+            color: #000000;
+            font-weight: bold;
+            margin-bottom: 20px;
+            font-family: 'KaiTi', 'SimSun', 'Microsoft YaHei', 'STKaiti', serif;
+        }
+
+        .card-back-content {
+            text-align: center;
+            color: #fbbf24;
+        }
+
+        .pinyin {
+            font-size: 2em;
+            margin-bottom: 15px;
+            font-weight: 500;
+        }
+
+        .part-of-speech {
+            font-size: 1.3em;
+            margin-bottom: 20px;
+            opacity: 0.9;
+        }
+
+        .translation {
+            font-size: 1.5em;
+            line-height: 1.6;
+            font-weight: 500;
+        }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            font-size: 1em;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.3);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn-primary {
+            background: white;
+            color: #667eea;
+        }
+
+        .btn-success {
+            background: #10b981;
+            color: white;
+        }
+
+        .btn-warning {
+            background: #f59e0b;
+            color: white;
+        }
+
+        .navigation {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .completion-screen {
+            display: none;
+            text-align: center;
+            color: white;
+            padding: 40px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+        }
+
+        .completion-screen h2 {
+            font-size: 3em;
+            margin-bottom: 20px;
+        }
+
+        .completion-screen p {
+            font-size: 1.5em;
+            margin-bottom: 30px;
+        }
+
+        .hint {
+            text-align: center;
+            color: white;
+            margin-top: 20px;
+            font-size: 0.9em;
+            opacity: 0.8;
+        }
+
+        @media (max-width: 600px) {
+            .card {
+                height: 350px;
+            }
+
+            .hanzi {
+                font-size: 4em;
+            }
+
+            .pinyin {
+                font-size: 1.5em;
+            }
+
+            .part-of-speech {
+                font-size: 1.1em;
+            }
+
+            .translation {
+                font-size: 1.2em;
+            }
+
+            .btn {
+                padding: 10px 20px;
+                font-size: 0.9em;
+            }
+
+            .header h1 {
+                font-size: 1.5em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🇨🇳 Китайские слова</h1>
+            <div class="counter" id="counter">Карточка 1 из 62</div>
+        </div>
+
+        <div id="cardView">
+            <div class="card-container">
+                <div class="card" id="flashcard">
+                    <div class="card-face card-front">
+                        <div class="hanzi" id="hanzi">仅</div>
+                    </div>
+                    <div class="card-face card-back">
+                        <div class="card-back-content">
+                            <div class="pinyin" id="pinyin">jǐn</div>
+                            <div class="part-of-speech" id="partOfSpeech">наречие</div>
+                            <div class="translation" id="translation">только, всего лишь; подчёркивает небольшое количество</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="hint">💡 Нажмите на карточку, чтобы перевернуть</div>
+
+            <div class="controls">
+                <button class="btn btn-warning" onclick="shuffleCards()">🔀 Перемешать</button>
+                <button class="btn btn-success" onclick="markAsLearned()">✓ Запомнил</button>
+            </div>
+
+            <div class="navigation">
+                <button class="btn btn-primary" onclick="previousCard()">← Назад</button>
+                <button class="btn btn-primary" onclick="nextCard()">Вперед →</button>
+            </div>
+        </div>
+
+        <div class="completion-screen" id="completionScreen">
+            <h2>🎉 Поздравляем!</h2>
+            <p>Вы изучили все карточки!</p>
+            <button class="btn btn-primary" onclick="resetCards()">🔄 Начать заново</button>
+        </div>
+    </div>
+
+    <script>
+        const cardsData = [
+            { hanzi: '仅', pinyin: 'jǐn', pos: 'наречие', translation: 'только, всего лишь; подчёркивает небольшое количество' },
+            { hanzi: '届', pinyin: 'jiè', pos: 'существительное', translation: 'выпуск, сессия, период (напр. 第三届比赛)\n一届 + 学生 / 会议' },
+            { hanzi: '应届', pinyin: 'yìngjiè', pos: 'прилагательное', translation: 'выпускной (текущего года), напр. 应届毕业生' },
+            { hanzi: '本科', pinyin: 'běnkē', pos: 'существительное', translation: 'бакалавриат, программа первого высшего образования' },
+            { hanzi: '面对', pinyin: 'miànduì', pos: 'глагол', translation: 'стоять перед; сталкиваться с чем-либо (面对现实、面对挑战)' },
+            { hanzi: '乐观', pinyin: 'lèguān', pos: 'прилагательное', translation: 'оптимистичный, с положительным настроем' },
+            { hanzi: '就业', pinyin: 'jiùyè', pos: 'глагол/сущ.', translation: 'устраиваться на работу; трудоустройство' },
+            { hanzi: '实话', pinyin: 'shíhuà', pos: 'существительное', translation: 'правда, правдивые слова (说实话 — честно говоря)' },
+            { hanzi: '优势', pinyin: 'yōushì', pos: 'существительное', translation: 'преимущество, сильная сторона (优势和缺点)\n有优势 / 占优势 / 突出优势 / 失去优势' },
+            { hanzi: '简历', pinyin: 'jiǎnlì', pos: 'существительное', translation: 'резюме, краткое изложение опыта\n一份 + 简历 / 报纸 / 答案' },
+            { hanzi: '现场', pinyin: 'xiànchǎng', pos: 'существительное', translation: 'место события,现场报道 — репортаж с места' },
+            { hanzi: '职位', pinyin: 'zhíwèi', pos: 'существительное', translation: 'должность, позиция в компании' },
+            { hanzi: '体验', pinyin: 'tǐyàn', pos: 'глагол/сущ.', translation: 'испытать лично, пережить, опыт через действие\n体验生活 / 体验快乐 / 体验新产品' },
+            { hanzi: '从此', pinyin: 'cóngcǐ', pos: 'наречие', translation: 'с тех пор, начиная с этого момента' },
+            { hanzi: '范围', pinyin: 'fànwéi', pos: 'существительное', translation: 'область, сфера, пределы, рамки (业务范围)\n划范围 / 限制范围 / 扩大范围' },
+            { hanzi: '初级中学', pinyin: 'chūjí zhōngxué', pos: 'существительное', translation: 'младшая средняя школа (7–9 классы)' },
+            { hanzi: '形势', pinyin: 'xíngshì', pos: 'существительное', translation: 'ситуация, обстановка (就业形势，经济形势)' },
+            { hanzi: '求职', pinyin: 'qiúzhí', pos: 'глагол/сущ.', translation: 'искать работу, поиск работы (求职者 — соискатель)' },
+            { hanzi: '顾问', pinyin: 'gùwèn', pos: 'существительное', translation: 'консультант, советник' },
+            { hanzi: '旅游体验师', pinyin: 'lǚyóu tǐyàn shī', pos: 'существительное', translation: 'оценщик туристического опыта, travel reviewer' },
+            { hanzi: '了如指掌', pinyin: 'liǎo rú zhǐ zhǎng', pos: 'идиома', translation: 'знать как свои пять пальцев' },
+            { hanzi: '参考', pinyin: 'cānkǎo', pos: 'глагол/сущ.', translation: 'обращаться за справкой, использовать как источник' },
+            { hanzi: '成长', pinyin: 'chéngzhǎng', pos: 'глагол/сущ.', translation: 'расти, взрослеть, развиваться (в плане личности или карьеры)' },
+            { hanzi: '制作', pinyin: 'zhìzuò', pos: 'глагол', translation: 'производить вручную, создавать (не промышленным способом)\n制作玩具 / 制作乐器' },
+            { hanzi: '才艺', pinyin: 'cáiyì', pos: 'существительное', translation: 'талант, умение, навыки (особенно творческие)' },
+            { hanzi: '迷', pinyin: 'mí', pos: 'существительное/глагол', translation: 'фанат, увлекаться чем-либо (篮球迷、音乐迷)' },
+            { hanzi: '假设', pinyin: 'jiǎshè', pos: 'глагол/сущ.', translation: 'предполагать, допускать; предположение, гипотеза' },
+            { hanzi: '反应', pinyin: 'fǎnyìng', pos: 'глагол/сущ.', translation: 'реагировать; реакция' },
+            { hanzi: '到达', pinyin: 'dàodá', pos: 'глагол', translation: 'прибывать (о поездах, самолётах, людях)' },
+            { hanzi: '陆续', pinyin: 'lùxù', pos: 'наречие', translation: 'один за одним, поочерёдно, постепенно, спокойно\n陆续 / 陆陆续续(地) + 进来 / 回去 / 出来 / 出去' },
+            { hanzi: '老板', pinyin: 'lǎobǎn', pos: 'существительное', translation: 'начальник, босс, владелец компании' },
+            { hanzi: '提问', pinyin: 'tíwèn', pos: 'глагол', translation: 'задавать вопрос, обращаться с вопросом' },
+            { hanzi: '堆', pinyin: 'duī', pos: 'счётное слово/сущ.', translation: 'куча, груда, стопка, толпа' },
+            { hanzi: '有问必答', pinyin: 'yǒu wèn bì dá', pos: 'идиома', translation: 'ответить на все вопросы, отвечать на каждый вопрос' },
+            { hanzi: '无误', pinyin: 'wúwù', pos: 'прилагательное', translation: 'безошибочный, проверенный, точный' },
+            { hanzi: '情侣', pinyin: 'qínglǚ', pos: 'существительное', translation: 'влюблённые, пара' },
+            { hanzi: '制订', pinyin: 'zhìdìng', pos: 'глагол', translation: 'составлять, разрабатывать (план, стратегию, правила)' },
+            { hanzi: '休闲', pinyin: 'xiūxián', pos: 'существительное/прилагательное', translation: 'отдых, досуг; свободный, расслабленный (休闲时间、休闲服)' },
+            { hanzi: '具体', pinyin: 'jùtǐ', pos: 'прилагательное/наречие', translation: 'конкретный, детальный; конкретно (具体来说)\n具体(地) + 说 / 看 / 分析' },
+            { hanzi: '专注', pinyin: 'zhuānzhù', pos: 'прилагательное/глагол', translation: 'сосредоточенный, быть поглощённым чем-то (专注于学习)' },
+            { hanzi: '显然', pinyin: 'xiǎnrán', pos: 'наречие/прилагательное', translation: 'очевидно, ясно (显然的事实)' },
+            { hanzi: '老总', pinyin: 'lǎozǒng', pos: 'существительное', translation: 'генеральный директор, босс, руководитель' },
+            { hanzi: '成立', pinyin: 'chénglì', pos: 'глагол', translation: 'учреждать, основывать (公司成立于1999年)' },
+            { hanzi: '部门', pinyin: 'bùmén', pos: 'существительное', translation: 'отдел, департамент, подразделение' },
+            { hanzi: '执着', pinyin: 'zhízhuó', pos: 'прилагательное', translation: 'настойчивый, упорный, целеустремлённый' },
+            { hanzi: '光明', pinyin: 'guāngmíng', pos: 'существительное/прилагательное', translation: 'свет, яркий; светлый, многообещающий (光明的前途)' },
+            { hanzi: '前途', pinyin: 'qiántú', pos: 'существительное', translation: 'перспектива, будущее (有前途)' },
+            { hanzi: '行业', pinyin: 'hángyè', pos: 'существительное', translation: 'отрасль, сфера деятельности (教育行业、IT行业)' },
+            { hanzi: '缺乏', pinyin: 'quēfá', pos: 'глагол', translation: 'не хватать, недоставать, испытывать нехватку (缺乏经验、缺乏信心)\n缺乏锻炼 / 缺乏睡眠 / 缺乏信心' },
+            { hanzi: '模特', pinyin: 'mótè', pos: 'существительное', translation: 'модель' },
+            { hanzi: '会计', pinyin: 'kuàijì', pos: 'существительное', translation: 'бухгалтер' },
+            { hanzi: '秘书', pinyin: 'mìshū', pos: 'существительное', translation: 'секретарь' },
+            { hanzi: '农民', pinyin: 'nóngmín', pos: 'существительное', translation: 'крестьянин, фермер' },
+            { hanzi: '工程师', pinyin: 'gōngchéngshī', pos: 'существительное', translation: 'инженер' },
+            { hanzi: '工人', pinyin: 'gōngrén', pos: 'существительное', translation: 'рабочий' },
+            { hanzi: '员工', pinyin: 'yuángōng', pos: 'существительное', translation: 'сотрудник' },
+            { hanzi: '人事', pinyin: 'rénshì', pos: 'существительное', translation: 'кадры, отдел персонала' },
+            { hanzi: '报到', pinyin: 'bàodào', pos: 'глагол', translation: 'явиться и зарегистрироваться (на работу, учёбу)' },
+            { hanzi: '失业', pinyin: 'shīyè', pos: 'глагол', translation: 'потерять работу, быть безработным' },
+            { hanzi: '手续', pinyin: 'shǒuxù', pos: 'существительное', translation: 'процедура, формальность' },
+            { hanzi: '待遇', pinyin: 'dàiyù', pos: 'существительное', translation: 'оплата и условия труда' },
+            { hanzi: '兼职', pinyin: 'jiānzhí', pos: 'существительное', translation: 'работа по совместительству' }
+        ];
+
+        let cards = [...cardsData];
+        let currentIndex = 0;
+        let isFlipped = false;
+
+        const flashcard = document.getElementById('flashcard');
+        const hanziEl = document.getElementById('hanzi');
+        const pinyinEl = document.getElementById('pinyin');
+        const partOfSpeechEl = document.getElementById('partOfSpeech');
+        const translationEl = document.getElementById('translation');
+        const counterEl = document.getElementById('counter');
+        const cardView = document.getElementById('cardView');
+        const completionScreen = document.getElementById('completionScreen');
+
+        flashcard.addEventListener('click', flipCard);
+
+        function flipCard() {
+            flashcard.classList.toggle('flipped');
+            isFlipped = !isFlipped;
+        }
+
+        function updateCard() {
+            if (cards.length === 0) {
+                showCompletionScreen();
+                return;
+            }
+
+            const card = cards[currentIndex];
+            hanziEl.textContent = card.hanzi;
+            pinyinEl.textContent = card.pinyin;
+            partOfSpeechEl.textContent = card.pos;
+            translationEl.textContent = card.translation;
+            
+            if (isFlipped) {
+                flashcard.classList.remove('flipped');
+                isFlipped = false;
+            }
+
+            updateCounter();
+        }
+
+        function updateCounter() {
+            counterEl.textContent = `Карточка ${currentIndex + 1} из ${cards.length}`;
+        }
+
+        function nextCard() {
+            if (currentIndex < cards.length - 1) {
+                currentIndex++;
+                updateCard();
+            }
+        }
+
+        function previousCard() {
+            if (currentIndex > 0) {
+                currentIndex--;
+                updateCard();
+            }
+        }
+
+        function shuffleCards() {
+            for (let i = cards.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [cards[i], cards[j]] = [cards[j], cards[i]];
+            }
+            currentIndex = 0;
+            updateCard();
+        }
+
+        function markAsLearned() {
+            if (cards.length === 0) return;
+            
+            cards.splice(currentIndex, 1);
+            
+            if (cards.length === 0) {
+                showCompletionScreen();
+            } else {
+                if (currentIndex >= cards.length) {
+                    currentIndex = cards.length - 1;
+                }
+                updateCard();
+            }
+        }
+
+        function showCompletionScreen() {
+            cardView.style.display = 'none';
+            completionScreen.style.display = 'block';
+        }
+
+        function resetCards() {
+            cards = [...cardsData];
+            currentIndex = 0;
+            cardView.style.display = 'block';
+            completionScreen.style.display = 'none';
+            updateCard();
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft') previousCard();
+            if (e.key === 'ArrowRight') nextCard();
+            if (e.key === ' ') {
+                e.preventDefault();
+                flipCard();
+            }
+        });
+
+        updateCard();
+    </script>
+</body>
+</html>
