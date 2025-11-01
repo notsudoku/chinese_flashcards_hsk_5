@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Китайские флэшкарточки</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 600px;
+            width: 100%;
+        }
+
+        .counter {
+            text-align: center;
+            color: white;
+            font-size: 18px;
+            margin-bottom: 20px;
+            font-weight: 500;
+        }
+
+        .card-container {
+            perspective: 1000px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            width: 100%;
+            height: 400px;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.6s;
+            cursor: pointer;
+        }
+
+        .card.flipped {
+            transform: rotateY(180deg);
+        }
+
+        .card-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            border-radius: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 40px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .card-front {
+            background: white;
+        }
+
+        .card-back {
+            background: #3b82f6;
+            color: #fbbf24;
+            transform: rotateY(180deg);
+        }
+
+        .chinese-character {
+            font-size: 120px;
+            font-weight: bold;
+            color: #000000;
+            font-family: 'Noto Serif SC', 'STKaiti', 'KaiTi', 'Microsoft YaHei', serif;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .pinyin {
+            font-size: 32px;
+            margin-bottom: 15px;
+            font-weight: 500;
+        }
+
+        .part-of-speech {
+            font-size: 20px;
+            margin-bottom: 20px;
+            opacity: 0.9;
+        }
+
+        .translation {
+            font-size: 24px;
+            text-align: center;
+            line-height: 1.5;
+            font-weight: 500;
+        }
+
+        .examples {
+            font-size: 18px;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 2px solid rgba(251, 191, 36, 0.3);
+            text-align: center;
+            line-height: 1.8;
+            opacity: 0.95;
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 12px 30px;
+            font-size: 16px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn-primary {
+            background: white;
+            color: #667eea;
+        }
+
+        .btn-success {
+            background: #10b981;
+            color: white;
+        }
+
+        .btn-warning {
+            background: #f59e0b;
+            color: white;
+        }
+
+        .navigation {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
+
+        .completion-screen {
+            display: none;
+            text-align: center;
+            color: white;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .completion-screen.active {
+            display: block;
+        }
+
+        .completion-title {
+            font-size: 48px;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+
+        .completion-message {
+            font-size: 24px;
+            margin-bottom: 30px;
+        }
+
+        .emoji {
+            font-size: 80px;
+            margin-bottom: 20px;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 600px) {
+            .card {
+                height: 350px;
+            }
+
+            .chinese-character {
+                font-size: 80px;
+            }
+
+            .pinyin {
+                font-size: 24px;
+            }
+
+            .part-of-speech {
+                font-size: 16px;
+            }
+
+            .translation {
+                font-size: 20px;
+            }
+
+            .btn {
+                padding: 10px 20px;
+                font-size: 14px;
+            }
+
+            .counter {
+                font-size: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div id="mainContent">
+            <div class="counter" id="counter">Карточка 1 из 72</div>
+            
+            <div class="card-container">
+                <div class="card" id="card" onclick="flipCard()">
+                    <div class="card-face card-front">
+                        <div class="chinese-character" id="character">身边</div>
+                    </div>
+                    <div class="card-face card-back">
+                        <div class="pinyin" id="pinyin">shēnbiān</div>
+                        <div class="part-of-speech" id="partOfSpeech">【名】</div>
+                        <div class="translation" id="translation">окружение, вокруг себя</div>
+                        <div class="examples" id="examples"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="controls">
+                <button class="btn btn-success" onclick="removeCard()">✓ Запомнил</button>
+                <button class="btn btn-warning" onclick="shuffleCards()">🔀 Перемешать</button>
+            </div>
+
+            <div class="navigation">
+                <button class="btn btn-primary" onclick="previousCard()">← Назад</button>
+                <button class="btn btn-primary" onclick="nextCard()">Вперед →</button>
+            </div>
+        </div>
+
+        <div class="completion-screen" id="completionScreen">
+            <div class="emoji">🎉</div>
+            <div class="completion-title">Поздравляем!</div>
+            <div class="completion-message">Вы изучили все карточки!</div>
+            <button class="btn btn-primary" onclick="resetCards()">Начать заново</button>
+        </div>
+    </div>
+
+    <script>
+        const allCards = [
+            { character: '身边', pinyin: 'shēnbiān', pos: '【名】', translation: 'окружение, вокруг себя' },
+            { character: '环保', pinyin: 'huánbǎo', pos: '【名】', translation: 'охрана окружающей среды' },
+            { character: '消失', pinyin: 'xiāoshī', pos: '【动】', translation: 'исчезать, пропадать' },
+            { character: '洪水', pinyin: 'hóngshuǐ', pos: '【名】', translation: 'наводнение' },
+            { character: '地震', pinyin: 'dìzhèn', pos: '【名】', translation: 'землетрясение' },
+            { character: '破坏', pinyin: 'pòhuài', pos: '【动】', translation: 'разрушать, портить', examples: '设备 / 环境 / 秩序 / 关系 / 森林 / 家庭 / 计划 / 形象 / 和平 / 午餐' },
+            { character: '砍', pinyin: 'kǎn', pos: '【动】', translation: 'рубить, срубать' },
+            { character: '砍光', pinyin: 'kǎn guāng', pos: '【动】', translation: 'вырубить подчистую' },
+            { character: '砍价', pinyin: 'kǎn jià', pos: '【动】', translation: 'торговаться, сбивать цену' },
+            { character: '生存', pinyin: 'shēngcún', pos: '【动】', translation: 'выживать' },
+            { character: '原本', pinyin: 'yuánběn', pos: '【副/名】', translation: 'изначально; первоначально' },
+            { character: '沙漠', pinyin: 'shāmò', pos: '【名】', translation: 'пустыня' },
+            { character: '公布', pinyin: 'gōngbù', pos: '【动】', translation: 'обнародовать, опубликовать' },
+            { character: '数据', pinyin: 'shùjù', pos: '【名】', translation: 'данные' },
+            { character: '数据分析', pinyin: 'shùjù fēnxī', pos: '【名】', translation: 'анализ данных' },
+            { character: '可知', pinyin: 'kězhī', pos: '【动】', translation: 'можно понять; можно сделать вывод' },
+            { character: '真实', pinyin: 'zhēnshí', pos: '【形】', translation: 'настоящий, подлинный, реальный', examples: '内容 / 故事 / 材料 / 消息 / 生活 / 经历 / 感情 / 看法 / 根证 / 原因' },
+            { character: '夸张', pinyin: 'kuāzhāng', pos: '【动/形】', translation: 'преувеличивать; преувеличенный', examples: '故事 / 动作 / 形象 / 语言 / 数量' },
+            { character: '自身', pinyin: 'zìshēn', pos: '【名/代】', translation: 'сам; собственная личность, внутренние качества' },
+            { character: '饱受', pinyin: 'bǎoshòu', pos: '【动】', translation: 'тяжело страдать от..., подвергаться тяготам' },
+            { character: '资源', pinyin: 'zīyuán', pos: '【名】', translation: 'ресурс', examples: '开发（出来）/ 保护（起来）/ 浪费 / 丰富 / 不是白拿的' },
+            { character: '水资源', pinyin: 'shuǐ zīyuán', pos: '【名】', translation: 'водные ресурсы' },
+            { character: '人力资源', pinyin: 'rénlì zīyuán', pos: '【名】', translation: 'человеческие ресурсы, кадры' },
+            { character: '短缺', pinyin: 'duǎnquē', pos: '【形】', translation: 'нехватка, дефицит' },
+            { character: '车祸', pinyin: 'chēhuò', pos: '【名】', translation: 'дорожная авария, ДТП' },
+            { character: '享用', pinyin: 'xiǎngyòng', pos: '【动】', translation: 'пользоваться, наслаждаться (чем-то)' },
+            { character: '不安', pinyin: 'bù\'ān', pos: '【形】', translation: 'беспокойный, тревожный, нестабильный' },
+            { character: '工业', pinyin: 'gōngyè', pos: '【名】', translation: 'промышленность' },
+            { character: '农业', pinyin: 'nóngyè', pos: '【名】', translation: 'сельское хозяйство' },
+            { character: '生产', pinyin: 'shēngchǎn', pos: '【动】', translation: 'производить; выпускать (продукцию)' },
+            { character: '大型', pinyin: 'dàxíng', pos: '【形】', translation: 'крупный; крупномасштабный' },
+            { character: '工厂', pinyin: 'gōngchǎng', pos: '【名】', translation: 'фабрика, завод' },
+            { character: '废', pinyin: 'fèi', pos: '【形/动】', translation: 'ненужный, отбрасывать; непригодный' },
+            { character: '废料', pinyin: 'fèiliào', pos: '【名】', translation: 'отходы, вторсырьё' },
+            { character: '废柴', pinyin: 'fèichái', pos: '【名/俚】', translation: 'бесполезный человек, неудачник (разг.)' },
+            { character: '燃烧', pinyin: 'ránshāo', pos: '【动】', translation: 'гореть; сжигать' },
+            { character: '煤炭', pinyin: 'méitàn', pos: '【名】', translation: 'уголь' },
+            { character: '废气', pinyin: 'fèiqì', pos: '【名】', translation: 'отработанные газы, промышленные выбросы' },
+            { character: '废物', pinyin: 'fèiwù', pos: '【名】', translation: 'отходы; бесполезная вещь / человек' },
+            { character: '密切', pinyin: 'mìqiè', pos: '【形/动】', translation: 'тесный, близкий; поддерживать тесные отношения', examples: '合作 / 关系 / 联系 / 配合 / 注意 / 关注' },
+            { character: '尾气', pinyin: 'wěiqì', pos: '【名】', translation: 'выхлопные газы (от автомобилей)' },
+            { character: '损害', pinyin: 'sǔnhài', pos: '【动】', translation: 'вредить; наносить ущерб; портить' },
+            { character: '幸运', pinyin: 'xìngyùn', pos: '【名/形】', translation: 'удача; везучий, удачливый' },
+            { character: '敏感', pinyin: 'mǐngǎn', pos: '【形】', translation: 'чувствительный; деликатный' },
+            { character: '自觉', pinyin: 'zìjué', pos: '【动/形】', translation: 'осознавать; осознанный; действовать по инициативе', examples: '工作 / 学习 / 运用 / 遵守 / 保护 / 注意 / 养成（习惯）' },
+            { character: '设施', pinyin: 'shèshī', pos: '【名】', translation: 'объект, оснащение, оборудование; инфраструктура', examples: '建成 / 完工 / 投入使用 / 完善 / 先进 / 落后' },
+            { character: '污染物', pinyin: 'wūrǎnwù', pos: '【名】', translation: 'загрязняющие вещества' },
+            { character: '排放', pinyin: 'páifàng', pos: '【动】', translation: 'выбрасывать, сбрасывать (загрязнения, газы)' },
+            { character: '调整', pinyin: 'tiáozhěng', pos: '【动】', translation: 'настраивать, регулировать, корректировать' },
+            { character: '能源', pinyin: 'néngyuán', pos: '【名】', translation: 'энергия, энергоресурсы' },
+            { character: '逐步', pinyin: 'zhúbù', pos: '【副】', translation: 'постепенно, шаг за шагом' },
+            { character: '尽量', pinyin: 'jǐnliàng', pos: '【副】', translation: 'изо всех сил, насколько возможно' },
+            { character: '私人', pinyin: 'sīrén', pos: '【形】', translation: 'частный' },
+            { character: '私家车', pinyin: 'sījiāchē', pos: '【名】', translation: 'частный автомобиль' },
+            { character: '为此付出', pinyin: 'wèi cǐ fùchū', pos: '【动】', translation: 'тратить что-то ради достижения результата' },
+            { character: '尊敬', pinyin: 'zūnjìng', pos: '【形/动】', translation: 'уважаемый; уважать' },
+            { character: '鼓舞', pinyin: 'gǔwǔ', pos: '【动/名】', translation: 'вдохновлять; вдохновение' },
+            { character: '分类', pinyin: 'fēnlèi', pos: '【动】', translation: 'сортировать, классифицировать, разделять' },
+            { character: '消极', pinyin: 'xiāojí', pos: '【形】', translation: 'негативный, пассивный' },
+            { character: '幻想', pinyin: 'huànxiǎng', pos: '【动/名】', translation: 'фантазировать; мечта, фантазия' },
+            { character: '贡献', pinyin: 'gòngxiàn', pos: '【动/名】', translation: 'вносить вклад; вклад' },
+            { character: '命运', pinyin: 'mìngyùn', pos: '【名】', translation: 'судьба' },
+            { character: '掌握', pinyin: 'zhǎngwò', pos: '【动】', translation: 'овладевать (знаниями), контролировать, управлять', examples: '规律 / 方法 / 情况 / 机遇 / 特点 / 命运 / 技术 / 知识 / 语言' },
+            { character: '允许', pinyin: 'yǔnxǔ', pos: '【动】', translation: 'разрешать, позволять' },
+            { character: '金属', pinyin: 'jīnshǔ', pos: '【名】', translation: 'металл' },
+            { character: '黄金', pinyin: 'huángjīn', pos: '【名】', translation: 'золото' },
+            { character: '银', pinyin: 'yín', pos: '【名】', translation: 'серебро' },
+            { character: '钢铁', pinyin: 'gāngtiě', pos: '【名】', translation: 'сталь, железо' },
+            { character: '原料', pinyin: 'yuánliào', pos: '【名】', translation: 'сырьё, исходный материал' },
+            { character: '扩大', pinyin: 'kuòdà', pos: '【动】', translation: 'расширять, увеличивать' },
+            { character: '灾难', pinyin: 'zāinàn', pos: '【名】', translation: 'бедствие, катастрофа' },
+            { character: '治理', pinyin: 'zhìlǐ', pos: '【动】', translation: 'управлять, приводить в порядок, контролировать' }
+        ];
+
+        let cards = [...allCards];
+        let currentIndex = 0;
+
+        function updateCard() {
+            if (cards.length === 0) {
+                showCompletionScreen();
+                return;
+            }
+
+            const card = cards[currentIndex];
+            document.getElementById('character').textContent = card.character;
+            document.getElementById('pinyin').textContent = card.pinyin;
+            document.getElementById('partOfSpeech').textContent = card.pos;
+            document.getElementById('translation').textContent = card.translation;
+            
+            // Display examples if available
+            const examplesElement = document.getElementById('examples');
+            if (card.examples) {
+                examplesElement.textContent = card.examples;
+                examplesElement.style.display = 'block';
+            } else {
+                examplesElement.style.display = 'none';
+            }
+            
+            document.getElementById('counter').textContent = `Карточка ${currentIndex + 1} из ${cards.length}`;
+            
+            // Убрать переворот при смене карточки
+            document.getElementById('card').classList.remove('flipped');
+        }
+
+        function flipCard() {
+            document.getElementById('card').classList.toggle('flipped');
+        }
+
+        function nextCard() {
+            if (cards.length === 0) return;
+            currentIndex = (currentIndex + 1) % cards.length;
+            updateCard();
+        }
+
+        function previousCard() {
+            if (cards.length === 0) return;
+            currentIndex = (currentIndex - 1 + cards.length) % cards.length;
+            updateCard();
+        }
+
+        function removeCard() {
+            if (cards.length === 0) return;
+            
+            cards.splice(currentIndex, 1);
+            
+            if (cards.length === 0) {
+                showCompletionScreen();
+                return;
+            }
+            
+            if (currentIndex >= cards.length) {
+                currentIndex = 0;
+            }
+            
+            updateCard();
+        }
+
+        function shuffleCards() {
+            for (let i = cards.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [cards[i], cards[j]] = [cards[j], cards[i]];
+            }
+            currentIndex = 0;
+            updateCard();
+        }
+
+        function showCompletionScreen() {
+            document.getElementById('mainContent').style.display = 'none';
+            document.getElementById('completionScreen').classList.add('active');
+        }
+
+        function resetCards() {
+            cards = [...allCards];
+            currentIndex = 0;
+            document.getElementById('mainContent').style.display = 'block';
+            document.getElementById('completionScreen').classList.remove('active');
+            updateCard();
+        }
+
+        // Инициализация
+        updateCard();
+    </script>
+</body>
+</html>
