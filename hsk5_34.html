@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Китайские флэшкарточки</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 600px;
+            width: 100%;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .counter {
+            font-size: 1.2em;
+            margin-bottom: 10px;
+            opacity: 0.9;
+        }
+
+        .card-container {
+            perspective: 1000px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            width: 100%;
+            height: 400px;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.6s;
+            cursor: pointer;
+        }
+
+        .card.flipped {
+            transform: rotateY(180deg);
+        }
+
+        .card-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            border-radius: 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .card-front {
+            background: white;
+        }
+
+        .card-back {
+            background: #2563eb;
+            color: #fbbf24;
+            transform: rotateY(180deg);
+        }
+
+        .hanzi {
+            font-size: 8em;
+            font-weight: bold;
+            color: #000000;
+            font-family: 'KaiTi', 'STKaiti', 'BiauKai', 'cursive', 'Microsoft YaHei', 'SimHei', sans-serif;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.15);
+        }
+
+        .card-back-content {
+            text-align: center;
+            width: 100%;
+        }
+
+        .pinyin {
+            font-size: 2em;
+            font-weight: bold;
+            margin-bottom: 15px;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+        }
+
+        .translation {
+            font-size: 1.3em;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .example {
+            font-size: 1.1em;
+            font-style: italic;
+            opacity: 0.9;
+            line-height: 1.5;
+        }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            font-size: 1em;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.3);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn-primary {
+            background: white;
+            color: #667eea;
+        }
+
+        .btn-success {
+            background: #10b981;
+            color: white;
+        }
+
+        .btn-warning {
+            background: #f59e0b;
+            color: white;
+        }
+
+        .btn-nav {
+            background: rgba(255,255,255,0.9);
+            color: #667eea;
+            padding: 12px 20px;
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn:disabled:hover {
+            transform: none;
+        }
+
+        .navigation {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .completion-screen {
+            display: none;
+            text-align: center;
+            color: white;
+            padding: 40px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+        }
+
+        .completion-screen.active {
+            display: block;
+        }
+
+        .completion-screen h2 {
+            font-size: 3em;
+            margin-bottom: 20px;
+        }
+
+        .completion-screen p {
+            font-size: 1.5em;
+            margin-bottom: 30px;
+        }
+
+        .emoji {
+            font-size: 5em;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 600px) {
+            .hanzi {
+                font-size: 5em;
+            }
+
+            .pinyin {
+                font-size: 1.5em;
+            }
+
+            .translation {
+                font-size: 1.1em;
+            }
+
+            .example {
+                font-size: 1em;
+            }
+
+            .card {
+                height: 350px;
+            }
+
+            .card-face {
+                padding: 20px;
+            }
+
+            .btn {
+                padding: 10px 18px;
+                font-size: 0.9em;
+            }
+
+            .header h1 {
+                font-size: 2em;
+            }
+        }
+
+        .hint {
+            text-align: center;
+            color: rgba(255,255,255,0.8);
+            font-size: 0.9em;
+            margin-top: 15px;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🇨🇳 Китайские карточки</h1>
+            <div class="counter" id="counter">Карточка 1 из 54</div>
+        </div>
+
+        <div id="cardSection">
+            <div class="card-container">
+                <div class="card" id="card" onclick="flipCard()">
+                    <div class="card-face card-front">
+                        <div class="hanzi" id="hanzi">护肤</div>
+                    </div>
+                    <div class="card-face card-back">
+                        <div class="card-back-content" id="backContent">
+                            <div class="pinyin">hùfū</div>
+                            <div class="translation">ухаживать за кожей; косметика для ухода</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="hint">💡 Нажмите на карточку, чтобы перевернуть</div>
+
+            <div class="controls">
+                <button class="btn btn-warning" onclick="shuffleCards()">🔀 Перемешать</button>
+                <button class="btn btn-success" onclick="markAsKnown()">✓ Запомнил</button>
+            </div>
+
+            <div class="navigation">
+                <button class="btn btn-nav" id="prevBtn" onclick="prevCard()">← Назад</button>
+                <button class="btn btn-nav" id="nextBtn" onclick="nextCard()">Вперед →</button>
+            </div>
+        </div>
+
+        <div class="completion-screen" id="completionScreen">
+            <div class="emoji">🎉</div>
+            <h2>Поздравляем!</h2>
+            <p>Вы изучили все карточки!</p>
+            <button class="btn btn-primary" onclick="resetCards()">🔄 Начать заново</button>
+        </div>
+    </div>
+
+    <script>
+        const flashcards = [
+            { hanzi: "护肤", pinyin: "hùfū", translation: "ухаживать за кожей; косметика для ухода" },
+            { hanzi: "术", pinyin: "shù", translation: "графема, связанная с техникой или искусством", example: "手术 — операция, 艺术 — искусство" },
+            { hanzi: "接触", pinyin: "jiēchù", translation: "соприкасаться; контактировать", example: "动物 / 孩子 / 病人 / 大自然 / 社会 / 新信息" },
+            { hanzi: "特征", pinyin: "tèzhēng", translation: "особенность; характерная черта", example: "明显的特征 / 突出的特征" },
+            { hanzi: "翅膀", pinyin: "chìbǎng", translation: "крыло", example: "一只 / 一双 / 一对翅膀" },
+            { hanzi: "昆虫", pinyin: "kūnchóng", translation: "насекомое" },
+            { hanzi: "天空", pinyin: "tiānkōng", translation: "небо" },
+            { hanzi: "羽毛", pinyin: "yǔmáo", translation: "перо; оперение" },
+            { hanzi: "区分", pinyin: "qūfēn", translation: "различать; дифференцировать" },
+            { hanzi: "唯一", pinyin: "wéiyī", translation: "единственный; уникальный", example: "唯一的办法 / 选择 / 结果 / 爱 / 角色" },
+            { hanzi: "斑", pinyin: "bān", translation: "пятнышко; крапинка" },
+            { hanzi: "充当", pinyin: "chōngdāng", translation: "выступать в роли; исполнять обязанности" },
+            { hanzi: "触觉", pinyin: "chùjué", translation: "осязание" },
+            { hanzi: "总之", pinyin: "zǒngzhī", translation: "в общем говоря; короче говоря" },
+            { hanzi: "角色", pinyin: "juésè", translation: "роль; в качестве" },
+            { hanzi: "爱惜", pinyin: "àixī", translation: "бережно относиться к вещам", example: "爱惜羽毛 / 身体 / 生命 / 粮食 | 要爱惜自己的身体" },
+            { hanzi: "珍惜", pinyin: "zhēnxī", translation: "ценить, дорожить", example: "珍惜朋友之间的感情" },
+            { hanzi: "保养", pinyin: "bǎoyǎng", translation: "проводить техобслуживание; ухаживать", example: "за машиной, телом и т.д." },
+            { hanzi: "情不自禁", pinyin: "qíng bù zì jīn", translation: "не в силах сдержать эмоций" },
+            { hanzi: "反复", pinyin: "fǎnfù", translation: "неоднократно; снова и снова" },
+            { hanzi: "啄", pinyin: "zhuó", translation: "клевать" },
+            { hanzi: "啄木鸟", pinyin: "zhuómùniǎo", translation: "дятел" },
+            { hanzi: "随身", pinyin: "suíshēn", translation: "носить с собой" },
+            { hanzi: "梳子", pinyin: "shūzi", translation: "расческа", example: "一把梳子" },
+            { hanzi: "梳", pinyin: "shū", translation: "расчесывать" },
+            { hanzi: "光滑", pinyin: "guānghuá", translation: "гладкий; блестящий", example: "光滑的表面 / 皮肤 / 羽毛" },
+            { hanzi: "抓", pinyin: "zhuā", translation: "хватать; овладевать" },
+            { hanzi: "肥皂", pinyin: "féizào", translation: "мыло" },
+            { hanzi: "概括", pinyin: "gàikuò", translation: "обобщать; резюмировать; в общем говоря; обобщённый" },
+            { hanzi: "岛屿", pinyin: "dǎoyǔ", translation: "остров" },
+            { hanzi: "知更鸟", pinyin: "zhīgēngniǎo", translation: "малиновка; зорянка (птица)" },
+            { hanzi: "坑", pinyin: "kēng", translation: "яма; канава; впадина" },
+            { hanzi: "江河", pinyin: "jiānghé", translation: "реки" },
+            { hanzi: "寒带", pinyin: "hándài", translation: "холодный пояс; арктический/субарктический пояс" },
+            { hanzi: "池塘", pinyin: "chítáng", translation: "пруд; водоём" },
+            { hanzi: "老鹰", pinyin: "lǎoyīng", translation: "орёл" },
+            { hanzi: "痛快", pinyin: "tòngkuai", translation: "весёлый; с удовольствием; от души", example: "痛快地哭 / 笑 / 吃 / 喝 / 骂 / 迎接" },
+            { hanzi: "迎接", pinyin: "yíngjiē", translation: "встречать; приветствовать", example: "热情地迎接 / 痛快地迎接" },
+            { hanzi: "洗礼", pinyin: "xǐlǐ", translation: "крещение; омовение; испытание (в переносном смысле)" },
+            { hanzi: "浴", pinyin: "yù", translation: "принимать ванну", example: "отдельно не используется, см. 沐浴" },
+            { hanzi: "沐浴", pinyin: "mùyù", translation: "омываться; принимать ванну; купаться", example: "в переносном смысле: 沐浴在阳光中" },
+            { hanzi: "沙子", pinyin: "shāzi", translation: "песок" },
+            { hanzi: "干燥", pinyin: "gānzào", translation: "сухой; пересушенный", example: "干燥的表面 / 皮肤 / 环境 / 空气 / 气候" },
+            { hanzi: "佳", pinyin: "jiā", translation: "красивый; превосходный; великолепный" },
+            { hanzi: "秘密", pinyin: "mìmì", translation: "секрет; тайна" },
+            { hanzi: "陆地", pinyin: "lùdì", translation: "суша, материк" },
+            { hanzi: "土地", pinyin: "tǔdì", translation: "земля, почва" },
+            { hanzi: "沙漠", pinyin: "shāmò", translation: "пустыня" },
+            { hanzi: "沙滩", pinyin: "shātān", translation: "пляж, песчаный берег" },
+            { hanzi: "岸", pinyin: "àn", translation: "берег" },
+            { hanzi: "洞", pinyin: "dòng", translation: "пещера, дыра" },
+            { hanzi: "木头", pinyin: "mùtou", translation: "дерево (материал)" },
+            { hanzi: "石头", pinyin: "shítou", translation: "камень" },
+            { hanzi: "灰尘", pinyin: "huīchén", translation: "пыль" }
+        ];
+
+        let currentCards = [...flashcards];
+        let currentIndex = 0;
+        let isFlipped = false;
+
+        function updateCard() {
+            if (currentCards.length === 0) {
+                showCompletionScreen();
+                return;
+            }
+
+            const card = currentCards[currentIndex];
+            document.getElementById('hanzi').textContent = card.hanzi;
+            
+            let backHTML = `
+                <div class="pinyin">${card.pinyin}</div>
+                <div class="translation">${card.translation}</div>
+            `;
+            
+            if (card.example) {
+                backHTML += `<div class="example">${card.example}</div>`;
+            }
+            
+            document.getElementById('backContent').innerHTML = backHTML;
+            document.getElementById('counter').textContent = `Карточка ${currentIndex + 1} из ${currentCards.length}`;
+            
+            // Сбросить переворот карточки
+            document.getElementById('card').classList.remove('flipped');
+            isFlipped = false;
+            
+            // Обновить кнопки навигации
+            document.getElementById('prevBtn').disabled = currentIndex === 0;
+            document.getElementById('nextBtn').disabled = currentIndex === currentCards.length - 1;
+        }
+
+        function flipCard() {
+            const card = document.getElementById('card');
+            card.classList.toggle('flipped');
+            isFlipped = !isFlipped;
+        }
+
+        function nextCard() {
+            if (currentIndex < currentCards.length - 1) {
+                currentIndex++;
+                updateCard();
+            }
+        }
+
+        function prevCard() {
+            if (currentIndex > 0) {
+                currentIndex--;
+                updateCard();
+            }
+        }
+
+        function shuffleCards() {
+            for (let i = currentCards.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [currentCards[i], currentCards[j]] = [currentCards[j], currentCards[i]];
+            }
+            currentIndex = 0;
+            updateCard();
+        }
+
+        function markAsKnown() {
+            if (currentCards.length === 0) return;
+            
+            currentCards.splice(currentIndex, 1);
+            
+            if (currentCards.length === 0) {
+                showCompletionScreen();
+                return;
+            }
+            
+            if (currentIndex >= currentCards.length) {
+                currentIndex = currentCards.length - 1;
+            }
+            
+            updateCard();
+        }
+
+        function showCompletionScreen() {
+            document.getElementById('cardSection').style.display = 'none';
+            document.getElementById('completionScreen').classList.add('active');
+        }
+
+        function resetCards() {
+            currentCards = [...flashcards];
+            currentIndex = 0;
+            document.getElementById('cardSection').style.display = 'block';
+            document.getElementById('completionScreen').classList.remove('active');
+            updateCard();
+        }
+
+        // Инициализация
+        updateCard();
+
+        // Навигация клавиатурой
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft') prevCard();
+            if (e.key === 'ArrowRight') nextCard();
+            if (e.key === ' ' || e.key === 'Enter') flipCard();
+        });
+    </script>
+</body>
+</html>
