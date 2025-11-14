@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Китайские флэшкарточки</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 600px;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 2em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .counter {
+            font-size: 1.2em;
+            color: #fff;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+        }
+
+        .card-container {
+            perspective: 1000px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            width: 100%;
+            height: 400px;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.6s;
+            cursor: pointer;
+        }
+
+        .card.flipped {
+            transform: rotateY(180deg);
+        }
+
+        .card-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 40px;
+        }
+
+        .card-front {
+            background: white;
+        }
+
+        .card-back {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            transform: rotateY(180deg);
+            color: #ffd700;
+        }
+
+        .hanzi {
+            font-size: 120px;
+            font-weight: bold;
+            color: #000000;
+            font-family: 'SimSun', 'STSong', serif;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .pinyin {
+            font-size: 2em;
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+
+        .translation {
+            font-size: 1.3em;
+            text-align: center;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+
+        .example {
+            font-size: 1.1em;
+            text-align: center;
+            line-height: 1.5;
+            font-style: italic;
+            opacity: 0.9;
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+
+        .btn {
+            padding: 12px 30px;
+            font-size: 1em;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: bold;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn-nav {
+            background: white;
+            color: #667eea;
+        }
+
+        .btn-shuffle {
+            background: #ffd700;
+            color: #333;
+        }
+
+        .btn-know {
+            background: #48bb78;
+            color: white;
+        }
+
+        .congratulations {
+            display: none;
+            text-align: center;
+            color: white;
+            padding: 40px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+        }
+
+        .congratulations h2 {
+            font-size: 2.5em;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .congratulations p {
+            font-size: 1.3em;
+            margin-bottom: 30px;
+        }
+
+        .btn-restart {
+            background: white;
+            color: #667eea;
+            padding: 15px 40px;
+            font-size: 1.2em;
+        }
+
+        @media (max-width: 600px) {
+            .hanzi {
+                font-size: 80px;
+            }
+
+            .pinyin {
+                font-size: 1.5em;
+            }
+
+            .translation {
+                font-size: 1.1em;
+            }
+
+            .example {
+                font-size: 0.95em;
+            }
+
+            .card {
+                height: 350px;
+            }
+
+            .card-face {
+                padding: 20px;
+            }
+
+            .controls {
+                gap: 10px;
+            }
+
+            .btn {
+                padding: 10px 20px;
+                font-size: 0.9em;
+            }
+
+            .header h1 {
+                font-size: 1.5em;
+            }
+        }
+
+        .hint {
+            color: white;
+            text-align: center;
+            margin-top: 15px;
+            font-size: 0.9em;
+            opacity: 0.8;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🇨🇳 Китайские флэшкарточки</h1>
+            <div class="counter" id="counter">Карточка 1 из 57</div>
+        </div>
+
+        <div id="cardSection">
+            <div class="card-container">
+                <div class="card" id="card">
+                    <div class="card-face card-front">
+                        <div class="hanzi" id="hanzi">炎热</div>
+                    </div>
+                    <div class="card-face card-back">
+                        <div class="pinyin" id="pinyin">yánrè</div>
+                        <div class="translation" id="translation">знойный, очень жаркий</div>
+                        <div class="example" id="example">今天天气很炎热<br>Сегодня очень жарко</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="hint">👆 Нажмите на карточку, чтобы перевернуть</div>
+
+            <div class="controls">
+                <button class="btn btn-nav" id="prevBtn">← Назад</button>
+                <button class="btn btn-shuffle" id="shuffleBtn">🔀 Перемешать</button>
+                <button class="btn btn-know" id="knowBtn">✓ Запомнил</button>
+                <button class="btn btn-nav" id="nextBtn">Вперед →</button>
+            </div>
+        </div>
+
+        <div class="congratulations" id="congratulations">
+            <h2>🎉 Поздравляем!</h2>
+            <p>Вы изучили все карточки!<br>Отличная работа!</p>
+            <button class="btn btn-restart" id="restartBtn">🔄 Начать заново</button>
+        </div>
+    </div>
+
+    <script>
+        const flashcards = [
+            { hanzi: "炎热", pinyin: "yánrè", translation: "знойный, очень жаркий", example: "今天天气很炎热\nСегодня очень жарко" },
+            { hanzi: "歇", pinyin: "xiē", translation: "отдыхать, передохнуть", example: "我们歇一会儿吧 / 歇两天\nДавайте немного отдохнём / Отдохнуть два дня" },
+            { hanzi: "汗如雨下", pinyin: "hàn rú yǔ xià", translation: "пот льётся градом", example: "他跑完步汗如雨下\nПосле пробежки у него пот лился градом" },
+            { hanzi: "开水", pinyin: "kāishuǐ", translation: "кипячёная вода", example: "一壶开水 / 一杯开水 / 一瓶开水\nЧайник кипятка / Стакан кипятка / Бутылка кипятка" },
+            { hanzi: "冰激凌", pinyin: "bīngjīlíng", translation: "мороженое", example: "夏天吃冰激凌很舒服\nЛетом есть мороженое очень приятно" },
+            { hanzi: "肌肉", pinyin: "jīròu", translation: "мышцы", example: "运动可以锻炼肌肉\nУпражнения тренируют мышцы" },
+            { hanzi: "缓解", pinyin: "huǎnjiě", translation: "смягчать, облегчать", example: "缓解压力 / 缓解疲劳 / 缓解感觉\nСнять стресс / Снять усталость / Облегчить ощущение" },
+            { hanzi: "疲劳", pinyin: "píláo", translation: "усталость", example: "他感到很疲劳\nОн чувствует усталость" },
+            { hanzi: "恢复", pinyin: "huīfù", translation: "восстанавливаться", example: "恢复过来 / 恢复得很快\nОправиться, прийти в себя / Восстановиться быстро" },
+            { hanzi: "湿润", pinyin: "shīrùn", translation: "влажный, увлажнённый", example: "这个面霜让皮肤湿润\nЭтот крем увлажняет кожу" },
+            { hanzi: "阴凉", pinyin: "yīnliáng", translation: "тенистый и прохладный", example: "我们在阴凉处休息\nМы отдыхаем в тенистом месте" },
+            { hanzi: "上升", pinyin: "shàngshēng", translation: "подниматься, расти", example: "气温正在上升\nТемпература поднимается" },
+            { hanzi: "指挥", pinyin: "zhǐhuī", translation: "командовать, руководить", example: "指挥交通 / 指挥士兵 / 指挥军队\nРегулировать движение / Командовать солдатами / Командовать войсками" },
+            { hanzi: "赶快", pinyin: "gǎnkuài", translation: "быстро, сразу, немедленно", example: "赶快走吧！\nБыстро пойдём!" },
+            { hanzi: "汗腺", pinyin: "hànxiàn", translation: "потовые железы", example: "人体有很多汗腺\nВ теле человека много потовых желез" },
+            { hanzi: "毛孔", pinyin: "máokǒng", translation: "поры (на коже)", example: "清洁可以打开毛孔\nОчищение открывает поры" },
+            { hanzi: "气孔", pinyin: "qìkǒng", translation: "устьица (на листьях)", example: "叶子上有很多气孔\nНа листьях много устьиц" },
+            { hanzi: "冒", pinyin: "mào", translation: "выходить, выделяться", example: "冒热气 / 冒烟\nВыходит пар / Выделяется дым" },
+            { hanzi: "片", pinyin: "piàn", translation: "кусочек, ломтик", example: "一片面包 / 一片西瓜 / 一片药\n一片草地 / 一片树林 / 一片天空 / 一片欢笑声\nКусочек хлеба / Ломтик арбуза / Таблетка\nЛужайка / Лес / Небо / Смех (повсюду)" },
+            { hanzi: "运输", pinyin: "yùnshū", translation: "перевозить, транспортировать", example: "货物需要运输\nТовары нужно транспортировать" },
+            { hanzi: "养分", pinyin: "yǎngfèn", translation: "питательные вещества", example: "植物吸收养分\nРастения впитывают питательные вещества" },
+            { hanzi: "常识", pinyin: "chángshí", translation: "здравый смысл", example: "这是基本常识\nЭто элементарные знания" },
+            { hanzi: "根", pinyin: "gēn", translation: "корень", example: "树的根很深\nКорни дерева глубокие" },
+            { hanzi: "吸收", pinyin: "xīshōu", translation: "впитывать, поглощать", example: "有效吸收 / 直接吸收 / 大量吸收 / 完全吸收\nЭффективно усваивать / Напрямую усваивать / В больших количествах поглощать / Полностью усваивать" },
+            { hanzi: "控制", pinyin: "kòngzhì", translation: "контролировать, управлять", example: "我们要控制情绪\nНам нужно контролировать эмоции" },
+            { hanzi: "成分", pinyin: "chéngfèn", translation: "состав, компонент", example: "这个药的成分是什么？\nКакой состав у этого лекарства?" },
+            { hanzi: "梢", pinyin: "shāo", translation: "верхушка, кончик ветви", example: "树梢上有鸟\nНа верхушке дерева птица" },
+            { hanzi: "管子", pinyin: "guǎnzi", translation: "труба, трубка", example: "一根管子 / 一支管子\nОдна труба / Одна трубка" },
+            { hanzi: "毛细作用", pinyin: "máoxì zuòyòng", translation: "капиллярное действие", example: "毛细作用让水上升\nКапиллярный эффект заставляет воду подниматься" },
+            { hanzi: "玻璃", pinyin: "bōli", translation: "стекло", example: "一块玻璃 / 玻璃杯\nКусок стекла / Стеклянный стакан" },
+            { hanzi: "测验", pinyin: "cèyàn", translation: "тест, проверка", example: "明天有数学测验\nЗавтра тест по математике" },
+            { hanzi: "输送", pinyin: "shūsòng", translation: "доставлять, транспортировать", example: "血液输送氧气\nКровь доставляет кислород" },
+            { hanzi: "根本", pinyin: "gēnběn", translation: "вовсе, совсем (в отриц.)", example: "我根本不知道\nЯ вообще не знал" },
+            { hanzi: "枝干", pinyin: "zhīgàn", translation: "ствол и ветви дерева", example: "树的枝干很粗\nСтвол дерева толстый" },
+            { hanzi: "顶端", pinyin: "dǐngduān", translation: "верхушка, макушка", example: "山的顶端\nВершина горы" },
+            { hanzi: "释放", pinyin: "shìfàng", translation: "освобождать", example: "释放压力\nОсвободить от стресса" },
+            { hanzi: "迫使", pinyin: "pòshǐ", translation: "заставлять, вынуждать", example: "困难迫使他改变\nТрудности заставили его измениться" },
+            { hanzi: "自动", pinyin: "zìdòng", translation: "автоматически", example: "自动门 / 自动离开 / 自动辞职\n自动打开 / 自动燃烧\nАвтоматическая дверь / Уйти самому / Уволиться по собственному желанию\nАвтоматически открываться / Самовозгораться" },
+            { hanzi: "补充", pinyin: "bǔchōng", translation: "добавлять, пополнять", example: "补充练习 / 补充信息 / 补充营养\n补充人员 / 补充资金\nДополнительное упражнение / Дополнить информацию / Восполнить питательные вещества\nПополнить персонал / Пополнить средства" },
+            { hanzi: "传递", pinyin: "chuándì", translation: "передавать, распространять", example: "传递信息\nПередавать информацию" },
+            { hanzi: "抽", pinyin: "chōu", translation: "вытянуть, извлечь", example: "抽出一张纸\nВытащить лист бумаги" },
+            { hanzi: "蒸腾", pinyin: "zhēngténg", translation: "испаряться, подниматься", example: "水分蒸腾\nВлага испаряется" },
+            { hanzi: "特殊", pinyin: "tèshū", translation: "особый, специальный", example: "特殊情况\nОсобая ситуация" },
+            { hanzi: "拉力", pinyin: "lālì", translation: "сила тяги, натяжение", example: "绳子的拉力很大\nСила натяжения верёвки большая" },
+            { hanzi: "内部", pinyin: "nèibù", translation: "внутренняя часть", example: "公司内部\nВнутри компании" },
+            { hanzi: "具体", pinyin: "jùtǐ", translation: "конкретный, определённый", example: "具体时间\nКонкретное время" },
+            { hanzi: "系统", pinyin: "xìtǒng", translation: "система", example: "教育系统\nСистема образования" },
+            { hanzi: "状况", pinyin: "zhuàngkuàng", translation: "ситуация, состояние", example: "健康状况良好\nСостояние здоровья хорошее" },
+            { hanzi: "遵守", pinyin: "zūnshǒu", translation: "соблюдать, придерживаться", example: "遵守规则\nСоблюдать правила" },
+            { hanzi: "秩序", pinyin: "zhìxù", translation: "порядок, дисциплина", example: "维持秩序 / 遵守秩序 / 破坏秩序\nПоддерживать порядок / Соблюдать порядок / Нарушать порядок" }
+        ];
+
+        let currentCards = [...flashcards];
+        let currentIndex = 0;
+
+        const card = document.getElementById('card');
+        const hanziEl = document.getElementById('hanzi');
+        const pinyinEl = document.getElementById('pinyin');
+        const translationEl = document.getElementById('translation');
+        const exampleEl = document.getElementById('example');
+        const counterEl = document.getElementById('counter');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const shuffleBtn = document.getElementById('shuffleBtn');
+        const knowBtn = document.getElementById('knowBtn');
+        const cardSection = document.getElementById('cardSection');
+        const congratulations = document.getElementById('congratulations');
+        const restartBtn = document.getElementById('restartBtn');
+
+        function updateCard() {
+            if (currentCards.length === 0) {
+                showCongratulations();
+                return;
+            }
+
+            const currentCard = currentCards[currentIndex];
+            hanziEl.textContent = currentCard.hanzi;
+            pinyinEl.textContent = currentCard.pinyin;
+            translationEl.textContent = currentCard.translation;
+            exampleEl.innerHTML = currentCard.example.replace('\n', '<br>');
+            counterEl.textContent = `Карточка ${currentIndex + 1} из ${currentCards.length}`;
+            
+            card.classList.remove('flipped');
+            
+            prevBtn.disabled = currentIndex === 0;
+            nextBtn.disabled = currentIndex === currentCards.length - 1;
+        }
+
+        function showCongratulations() {
+            cardSection.style.display = 'none';
+            congratulations.style.display = 'block';
+        }
+
+        card.addEventListener('click', () => {
+            card.classList.toggle('flipped');
+        });
+
+        prevBtn.addEventListener('click', () => {
+            if (currentIndex > 0) {
+                currentIndex--;
+                updateCard();
+            }
+        });
+
+        nextBtn.addEventListener('click', () => {
+            if (currentIndex < currentCards.length - 1) {
+                currentIndex++;
+                updateCard();
+            }
+        });
+
+        shuffleBtn.addEventListener('click', () => {
+            for (let i = currentCards.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [currentCards[i], currentCards[j]] = [currentCards[j], currentCards[i]];
+            }
+            currentIndex = 0;
+            updateCard();
+        });
+
+        knowBtn.addEventListener('click', () => {
+            currentCards.splice(currentIndex, 1);
+            if (currentIndex >= currentCards.length && currentIndex > 0) {
+                currentIndex--;
+            }
+            updateCard();
+        });
+
+        restartBtn.addEventListener('click', () => {
+            currentCards = [...flashcards];
+            currentIndex = 0;
+            cardSection.style.display = 'block';
+            congratulations.style.display = 'none';
+            updateCard();
+        });
+
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (currentCards.length === 0) return;
+            
+            if (e.key === 'ArrowLeft' && currentIndex > 0) {
+                currentIndex--;
+                updateCard();
+            } else if (e.key === 'ArrowRight' && currentIndex < currentCards.length - 1) {
+                currentIndex++;
+                updateCard();
+            } else if (e.key === ' ') {
+                e.preventDefault();
+                card.classList.toggle('flipped');
+            }
+        });
+
+        updateCard();
+    </script>
+</body>
+</html>
