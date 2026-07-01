@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Китайские флэшкарточки</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 600px;
+            width: 100%;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: white;
+        }
+
+        .counter {
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+
+        .card-container {
+            perspective: 1000px;
+            height: 400px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.6s;
+            cursor: pointer;
+        }
+
+        .card.flipped {
+            transform: rotateY(180deg);
+        }
+
+        .card-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            border-radius: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .card-front {
+            background: white;
+        }
+
+        .card-front .character {
+            font-size: 120px;
+            color: #000000;
+            font-weight: bold;
+            font-family: 'KaiTi', 'SimSun', 'Microsoft YaHei', serif;
+        }
+
+        .card-back {
+            background: #2563eb;
+            transform: rotateY(180deg);
+            padding: 40px;
+        }
+
+        .card-back-content {
+            text-align: center;
+            color: #fbbf24;
+        }
+
+        .pinyin {
+            font-size: 32px;
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+
+        .part-of-speech {
+            font-size: 18px;
+            margin-bottom: 20px;
+            opacity: 0.9;
+        }
+
+        .translation {
+            font-size: 24px;
+            line-height: 1.4;
+        }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            font-size: 16px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn-primary {
+            background: white;
+            color: #667eea;
+        }
+
+        .btn-success {
+            background: #10b981;
+            color: white;
+        }
+
+        .btn-warning {
+            background: #f59e0b;
+            color: white;
+        }
+
+        .navigation {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .completion-screen {
+            display: none;
+            text-align: center;
+            color: white;
+            animation: fadeIn 0.5s;
+        }
+
+        .completion-screen.active {
+            display: block;
+        }
+
+        .completion-screen h1 {
+            font-size: 48px;
+            margin-bottom: 20px;
+        }
+
+        .completion-screen p {
+            font-size: 24px;
+            margin-bottom: 30px;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        @media (max-width: 600px) {
+            .card-front .character {
+                font-size: 80px;
+            }
+
+            .pinyin {
+                font-size: 24px;
+            }
+
+            .translation {
+                font-size: 18px;
+            }
+
+            .card-container {
+                height: 350px;
+            }
+
+            .btn {
+                padding: 10px 20px;
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="counter" id="counter">Карточка 1 из 39</div>
+        </div>
+
+        <div id="main-content">
+            <div class="card-container">
+                <div class="card" id="card" onclick="flipCard()">
+                    <div class="card-face card-front">
+                        <div class="character" id="character">纸上谈兵</div>
+                    </div>
+                    <div class="card-face card-back">
+                        <div class="card-back-content">
+                            <div class="pinyin" id="pinyin">zhǐshàng tánbīng</div>
+                            <div class="part-of-speech" id="partOfSpeech">成语</div>
+                            <div class="translation" id="translation">быть диванным стратегом; рассуждать о войне на бумаге</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="controls">
+                <button class="btn btn-warning" onclick="shuffleCards()">🔀 Перемешать</button>
+                <button class="btn btn-success" onclick="markAsLearned()">✓ Запомнил</button>
+            </div>
+
+            <div class="navigation">
+                <button class="btn btn-primary" onclick="previousCard()">← Назад</button>
+                <button class="btn btn-primary" onclick="nextCard()">Вперед →</button>
+            </div>
+        </div>
+
+        <div class="completion-screen" id="completion">
+            <h1>🎉 Поздравляем!</h1>
+            <p>Вы изучили все карточки!</p>
+            <button class="btn btn-primary" onclick="resetCards()">Начать заново</button>
+        </div>
+    </div>
+
+    <script>
+                const cardsData = [
+    { character: '事物', pinyin: 'shìwù', pos: 'сущ.', translation: 'вещь; предмет' },
+    { character: '高峰', pinyin: 'gāofēng', pos: 'сущ.', translation: 'вершина; пик' },
+    { character: '终点', pinyin: 'zhōngdiǎn', pos: 'сущ.', translation: 'конечный пункт; финиш' },
+    { character: '迅速', pinyin: 'xùnsù', pos: 'прил.', translation: 'быстрый; стремительный' },
+    { character: '深刻', pinyin: 'shēnkè', pos: 'прил.', translation: 'глубокий' },
+    { character: '戏剧', pinyin: 'xìjù', pos: 'сущ.', translation: 'драма; театральная пьеса' },
+    { character: '投入', pinyin: 'tóurù', pos: 'глаг./сущ./прил.', translation: 'вкладывать; посвящать; вложение; увлечённый' },
+    { character: '服装', pinyin: 'fúzhuāng', pos: 'сущ.', translation: 'одежда; костюм' },
+    { character: '化妆', pinyin: 'huàzhuāng', pos: 'глаг.', translation: 'наносить макияж; гримироваться' },
+    { character: '道具', pinyin: 'dàojù', pos: 'сущ.', translation: 'реквизит' },
+    { character: '美术', pinyin: 'měishù', pos: 'сущ.', translation: 'изобразительное искусство' },
+    { character: '以', pinyin: 'yǐ', pos: 'союз', translation: 'чтобы; с целью' },
+    { character: '良好', pinyin: 'liánghǎo', pos: 'прил.', translation: 'хороший; благоприятный' },
+    { character: '争取', pinyin: 'zhēngqǔ', pos: 'глаг.', translation: 'добиваться; стремиться получить' },
+    { character: '忽视', pinyin: 'hūshì', pos: 'глаг.', translation: 'игнорировать; пренебрегать' },
+    { character: '魅力', pinyin: 'mèilì', pos: 'сущ.', translation: 'обаяние; привлекательность' },
+    { character: '糟糕', pinyin: 'zāogāo', pos: 'прил.', translation: 'ужасный; плохой' },
+    { character: '婚礼', pinyin: 'hūnlǐ', pos: 'сущ.', translation: 'свадьба' },
+    { character: '等于', pinyin: 'děngyú', pos: 'глаг.', translation: 'быть равным; равняться' },
+    { character: '度过', pinyin: 'dùguò', pos: 'глаг.', translation: 'проводить (время); переживать' },
+    { character: '告别', pinyin: 'gàobié', pos: 'глаг.', translation: 'прощаться' },
+    { character: '平常', pinyin: 'píngcháng', pos: 'прил./сущ.', translation: 'обычный; заурядность' },
+    { character: '依然', pinyin: 'yīrán', pos: 'нареч.', translation: 'по-прежнему; всё ещё' },
+    { character: '推荐', pinyin: 'tuījiàn', pos: 'глаг.', translation: 'рекомендовать' },
+    { character: '淋漓尽致', pinyin: 'línlí jìnzhì', pos: 'фразеол.', translation: 'в полной мере; ярко и полно' },
+    { character: '评价', pinyin: 'píngjià', pos: 'глаг./сущ.', translation: 'оценивать; оценка' },
+    { character: '烂', pinyin: 'làn', pos: 'прил.', translation: 'паршивый; отвратительный' },
+    { character: '主持', pinyin: 'zhǔchí', pos: 'глаг./сущ.', translation: 'вести; председательствовать; ведущий' },
+    { character: '运用', pinyin: 'yùnyòng', pos: 'глаг.', translation: 'применять; использовать на практике' },
+    { character: '开幕式', pinyin: 'kāimùshì', pos: 'сущ.', translation: 'церемония открытия' },
+    { character: '宁可', pinyin: 'nìngkě', pos: 'нареч.', translation: 'лучше; предпочесть' },
+    { character: '集中', pinyin: 'jízhōng', pos: 'глаг./прил.', translation: 'сосредоточиваться; концентрировать; сосредоточенный' },
+    { character: '体会', pinyin: 'tǐhuì', pos: 'глаг./сущ.', translation: 'постигать на опыте; осознавать; понимание; ощущение' }
+];
+
+        let currentCards = [...cardsData];
+        let currentIndex = 0;
+
+        function updateCard() {
+            if (currentCards.length === 0) {
+                document.getElementById('main-content').style.display = 'none';
+                document.getElementById('completion').classList.add('active');
+                return;
+            }
+
+            const card = currentCards[currentIndex];
+            document.getElementById('character').textContent = card.character;
+            document.getElementById('pinyin').textContent = card.pinyin;
+            document.getElementById('partOfSpeech').textContent = card.pos;
+            document.getElementById('translation').textContent = card.translation;
+            document.getElementById('counter').textContent = `Карточка ${currentIndex + 1} из ${currentCards.length}`;
+            
+            const cardElement = document.getElementById('card');
+            cardElement.classList.remove('flipped');
+        }
+
+        function flipCard() {
+            document.getElementById('card').classList.toggle('flipped');
+        }
+
+        function nextCard() {
+            if (currentIndex < currentCards.length - 1) {
+                currentIndex++;
+                updateCard();
+            }
+        }
+
+        function previousCard() {
+            if (currentIndex > 0) {
+                currentIndex--;
+                updateCard();
+            }
+        }
+
+        function markAsLearned() {
+            currentCards.splice(currentIndex, 1);
+            if (currentIndex >= currentCards.length && currentIndex > 0) {
+                currentIndex--;
+            }
+            updateCard();
+        }
+
+        function shuffleCards() {
+            for (let i = currentCards.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [currentCards[i], currentCards[j]] = [currentCards[j], currentCards[i]];
+            }
+            currentIndex = 0;
+            updateCard();
+        }
+
+        function resetCards() {
+            currentCards = [...cardsData];
+            currentIndex = 0;
+            document.getElementById('main-content').style.display = 'block';
+            document.getElementById('completion').classList.remove('active');
+            updateCard();
+        }
+
+        updateCard();
+    </script>
+</body>
+</html>
