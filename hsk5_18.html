@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Китайские флэшкарточки</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 600px;
+            width: 100%;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: white;
+        }
+
+        .counter {
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+
+        .card-container {
+            perspective: 1000px;
+            height: 400px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.6s;
+            cursor: pointer;
+        }
+
+        .card.flipped {
+            transform: rotateY(180deg);
+        }
+
+        .card-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            border-radius: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .card-front {
+            background: white;
+        }
+
+        .card-front .character {
+            font-size: 120px;
+            color: #000000;
+            font-weight: bold;
+            font-family: 'KaiTi', 'SimSun', 'Microsoft YaHei', serif;
+        }
+
+        .card-back {
+            background: #2563eb;
+            transform: rotateY(180deg);
+            padding: 40px;
+        }
+
+        .card-back-content {
+            text-align: center;
+            color: #fbbf24;
+        }
+
+        .pinyin {
+            font-size: 32px;
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+
+        .part-of-speech {
+            font-size: 18px;
+            margin-bottom: 20px;
+            opacity: 0.9;
+        }
+
+        .translation {
+            font-size: 24px;
+            line-height: 1.4;
+        }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            font-size: 16px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn-primary {
+            background: white;
+            color: #667eea;
+        }
+
+        .btn-success {
+            background: #10b981;
+            color: white;
+        }
+
+        .btn-warning {
+            background: #f59e0b;
+            color: white;
+        }
+
+        .navigation {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .completion-screen {
+            display: none;
+            text-align: center;
+            color: white;
+            animation: fadeIn 0.5s;
+        }
+
+        .completion-screen.active {
+            display: block;
+        }
+
+        .completion-screen h1 {
+            font-size: 48px;
+            margin-bottom: 20px;
+        }
+
+        .completion-screen p {
+            font-size: 24px;
+            margin-bottom: 30px;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        @media (max-width: 600px) {
+            .card-front .character {
+                font-size: 80px;
+            }
+
+            .pinyin {
+                font-size: 24px;
+            }
+
+            .translation {
+                font-size: 18px;
+            }
+
+            .card-container {
+                height: 350px;
+            }
+
+            .btn {
+                padding: 10px 20px;
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="counter" id="counter">Карточка 1 из 39</div>
+        </div>
+
+        <div id="main-content">
+            <div class="card-container">
+                <div class="card" id="card" onclick="flipCard()">
+                    <div class="card-face card-front">
+                        <div class="character" id="character">纸上谈兵</div>
+                    </div>
+                    <div class="card-face card-back">
+                        <div class="card-back-content">
+                            <div class="pinyin" id="pinyin">zhǐshàng tánbīng</div>
+                            <div class="part-of-speech" id="partOfSpeech">成语</div>
+                            <div class="translation" id="translation">быть диванным стратегом; рассуждать о войне на бумаге</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="controls">
+                <button class="btn btn-warning" onclick="shuffleCards()">🔀 Перемешать</button>
+                <button class="btn btn-success" onclick="markAsLearned()">✓ Запомнил</button>
+            </div>
+
+            <div class="navigation">
+                <button class="btn btn-primary" onclick="previousCard()">← Назад</button>
+                <button class="btn btn-primary" onclick="nextCard()">Вперед →</button>
+            </div>
+        </div>
+
+        <div class="completion-screen" id="completion">
+            <h1>🎉 Поздравляем!</h1>
+            <p>Вы изучили все карточки!</p>
+            <button class="btn btn-primary" onclick="resetCards()">Начать заново</button>
+        </div>
+    </div>
+
+    <script>
+                const cardsData = [
+    { character: '抽象', pinyin: 'chōuxiàng', pos: 'прил./глаг.', translation: 'абстрактный; делать вывод на основе объективных фактов' },
+    { character: '古典', pinyin: 'gǔdiǎn', pos: 'прил.', translation: 'классический' },
+    { character: '欣赏', pinyin: 'xīnshǎng', pos: 'глаг.', translation: 'любоваться; восхищаться; ценить' },
+    { character: '布', pinyin: 'bù', pos: 'сущ.', translation: 'ткань' },
+    { character: '规则', pinyin: 'guīzé', pos: 'прил./сущ.', translation: 'регулярный; правило' },
+    { character: '派', pinyin: 'pài', pos: 'сущ.', translation: 'школа; направление; течение' },
+    { character: '作品', pinyin: 'zuòpǐn', pos: 'сущ.', translation: 'произведение' },
+    { character: '洒', pinyin: 'sǎ', pos: 'глаг.', translation: 'разбрызгивать; распылять' },
+    { character: '极其', pinyin: 'jíqí', pos: 'нареч.', translation: 'чрезвычайно; крайне' },
+    { character: '神秘', pinyin: 'shénmì', pos: 'прил.', translation: 'таинственный; загадочный' },
+    { character: '丑（陋）', pinyin: 'chǒu (lòu)', pos: 'прил.', translation: 'уродливый' },
+    { character: '自由', pinyin: 'zìyóu', pos: 'сущ./прил.', translation: 'свобода; свободный' },
+    { character: '设计', pinyin: 'shèjì', pos: 'глаг./сущ.', translation: 'проектировать; дизайн' },
+    { character: '组', pinyin: 'zǔ', pos: 'сущ./сч. сл.', translation: 'группа; команда; комплект' },
+    { character: '幅', pinyin: 'fú', pos: 'сч. сл.', translation: 'счётное слово для картин, свитков и т.п.' },
+    { character: '出自', pinyin: 'chūzì', pos: 'глаг.', translation: 'происходить; быть родом из' },
+    { character: '业余', pinyin: 'yèyú', pos: 'прил.', translation: 'любительский' },
+    { character: '婴儿', pinyin: 'yīng\'ér', pos: 'сущ.', translation: 'младенец' },
+    { character: '猩猩', pinyin: 'xīngxing', pos: 'сущ.', translation: 'горилла; человекообразная обезьяна' },
+    { character: '涂鸦', pinyin: 'túyā', pos: 'глаг.', translation: 'рисовать граффити; делать каракули' },
+    { character: '签', pinyin: 'qiān', pos: 'глаг.', translation: 'подписывать; давать автограф' },
+    { character: '其余', pinyin: 'qíyú', pos: 'мест.', translation: 'остальные; остальные люди' },
+    { character: '身份', pinyin: 'shēnfèn', pos: 'сущ.', translation: 'личность; статус' },
+    { character: '确认', pinyin: 'quèrèn', pos: 'глаг.', translation: 'подтверждать' },
+    { character: '随手', pinyin: 'suíshǒu', pos: 'нареч.', translation: 'мимоходом; заодно; без особых усилий' },
+    { character: '分辨', pinyin: 'fēnbiàn', pos: 'глаг.', translation: 'различать; отличать' },
+    { character: '挥', pinyin: 'huī', pos: 'глаг.', translation: 'размахивать; орудовать' },
+    { character: '可见', pinyin: 'kějiàn', pos: 'союз.', translation: 'следовательно; как видно' },
+    { character: '哪怕', pinyin: 'nǎpà', pos: 'союз.', translation: 'даже если' },
+    { character: '元素', pinyin: 'yuánsù', pos: 'сущ.', translation: 'элемент' },
+    { character: '调整', pinyin: 'tiáozhěng', pos: 'глаг./сущ.', translation: 'регулировать; корректировать; корректировка' },
+    { character: '位置', pinyin: 'wèizhì', pos: 'сущ.', translation: 'местоположение; положение' },
+    { character: '含意', pinyin: 'hányì', pos: 'сущ.', translation: 'подразумеваемый смысл; скрытый смысл' },
+    { character: '区域', pinyin: 'qūyù', pos: 'сущ.', translation: 'район; область' },
+    { character: '活跃', pinyin: 'huóyuè', pos: 'прил./глаг.', translation: 'активный; оживлённый; активизировать' },
+    { character: '布局', pinyin: 'bùjú', pos: 'сущ.', translation: 'композиция; расположение' },
+    { character: '事实', pinyin: 'shìshí', pos: 'сущ.', translation: 'факт' },
+    { character: '目前', pinyin: 'mùqián', pos: 'сущ.', translation: 'настоящее время; текущий момент' },
+    { character: '证据', pinyin: 'zhèngjù', pos: 'сущ.', translation: 'доказательство; улика' },
+    { character: '话题', pinyin: 'huàtí', pos: 'сущ.', translation: 'тема' },
+    { character: '导演', pinyin: 'dǎoyǎn', pos: 'сущ.', translation: 'режиссёр' },
+    { character: '角色', pinyin: 'juésè', pos: 'сущ.', translation: 'роль; персонаж' },
+    { character: '明星', pinyin: 'míngxīng', pos: 'сущ.', translation: 'знаменитость; звезда' },
+    { character: '动画片', pinyin: 'dònghuàpiàn', pos: 'сущ.', translation: 'мультфильм' },
+    { character: '娱乐', pinyin: 'yúlè', pos: 'сущ./глаг.', translation: 'развлечение; развлекать' },
+    { character: '录音', pinyin: 'lùyīn', pos: 'сущ./глаг.', translation: 'аудиозапись; записывать звук' },
+    { character: '麦克风', pinyin: 'màikèfēng', pos: 'сущ.', translation: 'микрофон' },
+    { character: '频道', pinyin: 'píndào', pos: 'сущ.', translation: 'канал' },
+    { character: '字幕', pinyin: 'zìmù', pos: 'сущ.', translation: 'субтитры' },
+    { character: '乐器', pinyin: 'yuèqì', pos: 'сущ.', translation: 'музыкальный инструмент' },
+    { character: '美术', pinyin: 'měishù', pos: 'сущ.', translation: 'изобразительное искусство' }
+];
+
+        let currentCards = [...cardsData];
+        let currentIndex = 0;
+
+        function updateCard() {
+            if (currentCards.length === 0) {
+                document.getElementById('main-content').style.display = 'none';
+                document.getElementById('completion').classList.add('active');
+                return;
+            }
+
+            const card = currentCards[currentIndex];
+            document.getElementById('character').textContent = card.character;
+            document.getElementById('pinyin').textContent = card.pinyin;
+            document.getElementById('partOfSpeech').textContent = card.pos;
+            document.getElementById('translation').textContent = card.translation;
+            document.getElementById('counter').textContent = `Карточка ${currentIndex + 1} из ${currentCards.length}`;
+            
+            const cardElement = document.getElementById('card');
+            cardElement.classList.remove('flipped');
+        }
+
+        function flipCard() {
+            document.getElementById('card').classList.toggle('flipped');
+        }
+
+        function nextCard() {
+            if (currentIndex < currentCards.length - 1) {
+                currentIndex++;
+                updateCard();
+            }
+        }
+
+        function previousCard() {
+            if (currentIndex > 0) {
+                currentIndex--;
+                updateCard();
+            }
+        }
+
+        function markAsLearned() {
+            currentCards.splice(currentIndex, 1);
+            if (currentIndex >= currentCards.length && currentIndex > 0) {
+                currentIndex--;
+            }
+            updateCard();
+        }
+
+        function shuffleCards() {
+            for (let i = currentCards.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [currentCards[i], currentCards[j]] = [currentCards[j], currentCards[i]];
+            }
+            currentIndex = 0;
+            updateCard();
+        }
+
+        function resetCards() {
+            currentCards = [...cardsData];
+            currentIndex = 0;
+            document.getElementById('main-content').style.display = 'block';
+            document.getElementById('completion').classList.remove('active');
+            updateCard();
+        }
+
+        updateCard();
+    </script>
+</body>
+</html>
